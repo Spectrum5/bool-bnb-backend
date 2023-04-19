@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 // Controllers
 
 // Models
+use App\Http\Controllers\Api\ApartmentController;
+use App\Http\Controllers\Api\ImageController;
 
 /*
 |--------------------------------------------------------------------------
