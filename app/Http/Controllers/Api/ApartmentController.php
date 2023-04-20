@@ -32,9 +32,17 @@ class ApartmentController extends Controller
     {
         $apartmentsPerPage = 18;
         $title = $request->input('title');
+        $user_id = $request->input('user_id');
 
         if ($title) {
             $apartments = Apartment::where('title','LIKE',"%{$title}%")->with('services')->get();
+        }
+        else {
+            $apartments = Apartment::with('services')->paginate($apartmentsPerPage);
+        }
+
+        if ($user_id) {
+            $apartments = Apartment::where('user_id', $user_id)->with('services')->get();
         }
         else {
             $apartments = Apartment::with('services')->paginate($apartmentsPerPage);
@@ -44,7 +52,8 @@ class ApartmentController extends Controller
             $response = [
                 'success' => true,
                 'message' => 'success',
-                'apartments' => $apartments
+                'apartments' => $apartments,
+                'user_id' => $user_id ?? 'Non ci sta'
             ];
         } else {
             $response = [
