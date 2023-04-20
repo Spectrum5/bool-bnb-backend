@@ -37,11 +37,9 @@ class ApartmentController extends Controller
         if ($title) {
             $apartments = Apartment::where('title','LIKE',"%{$title}%")->with('services')->get();
         }
-        else {
-            $apartments = Apartment::with('services')->paginate($apartmentsPerPage);
-        }
 
-        if ($user_id) {
+
+        else if ($user_id) {
             $apartments = Apartment::where('user_id', $user_id)->with('services')->get();
         }
         else {
@@ -53,7 +51,6 @@ class ApartmentController extends Controller
                 'success' => true,
                 'message' => 'success',
                 'apartments' => $apartments,
-                'user_id' => $user_id ?? 'Non ci sta'
             ];
         } else {
             $response = [
