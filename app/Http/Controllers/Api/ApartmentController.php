@@ -117,23 +117,20 @@ class ApartmentController extends Controller
         $newApartment->size = $data['size'];
         $newApartment->description = $data['description'];
         $newApartment->user_id = $data['user_id'];
-
+        
         $newApartment->save();
 
-
-        // if ($newApartment) {
+        $services = $data['services'];
+        foreach ($services as $service) {
+            $newApartment->services()->attach($service);
+        };
+    
         $response = [
             'success' => true,
             'message' => 'Appartamento aggiunto con successo',
-            'newApartment' => $newApartment
+            'newApartment' => $newApartment,
+            'allServices' => $services,
         ];
-        // }
-        // else {
-        //     $response = [
-        //         'success' => false,
-        //         'message' => 'error'
-        //     ];
-        // }
 
         return response()->json($response);
     }

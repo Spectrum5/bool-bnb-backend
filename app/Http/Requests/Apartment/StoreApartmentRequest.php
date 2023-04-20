@@ -37,6 +37,7 @@ class StoreApartmentRequest extends FormRequest
             'description' => 'required|max:4096',
             'size' => 'required|numeric|min:50|max:500',
             'user_id' => 'required|numeric',
+            'services' => 'array',
         ];
     }
 }
