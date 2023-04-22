@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-// use Symfony\Component\Console\Input\Input;
-use App\Http\Controllers\Api\Input;
 
 use Exception;
 
@@ -15,6 +13,7 @@ use App\Http\Requests\Apartment\UpdateApartmentRequest;
 
 // Helpers
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 // Models
 use App\Models\Apartment;
@@ -39,18 +38,20 @@ class ApartmentController extends Controller
         }
 
 
-        else if ($user_id) {
+        else if ($user_id && $user_id == Auth::user()->id) {
             $apartments = Apartment::where('user_id', $user_id)->with('services')->get();
         }
         else {
             $apartments = Apartment::with('services')->paginate($apartmentsPerPage);
         }
 
+        // AGGIUNGERE VALIDAZIONI ID
         if ($apartments) {
             $response = [
                 'success' => true,
                 'message' => 'success',
                 'apartments' => $apartments,
+                'user' => Auth::user()
             ];
         } else {
             $response = [
