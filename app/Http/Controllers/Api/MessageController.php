@@ -66,8 +66,6 @@ class MessageController extends Controller
 
         $newMessage = new Message();
 
-        $newMessage->first_name = $data['first_name'];
-        $newMessage->last_name = $data['last_name'];
         $newMessage->email = $data['email'];
         $newMessage->message = $data['message'];
         $newMessage->apartment_id = $data['apartment_id'];
