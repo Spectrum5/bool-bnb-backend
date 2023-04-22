@@ -30,8 +30,6 @@ class MessageTableSeeder extends Seeder
             $newMessage->apartment_id = Apartment::inRandomOrder()->first()->id;
             $newMessage->message = $faker->sentence(25);
             $newMessage->email = Str::lower($name) . '@email.com';;
-            $newMessage->first_name = $name;
-            $newMessage->last_name = $faker->lastName();
 
             $newMessage->save();
         }
