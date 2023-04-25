@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 // use Illuminate\Support\Collection;
 // \Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+// use GuzzleHttp\Client;
 
 // Models
 use App\Models\Apartment;
@@ -42,7 +43,7 @@ class ApartmentController extends Controller
         if ($request->input('beds_number') != null) $beds_number = $request->input('beds_number');
         if ($request->input('bathrooms_number') != null) $bathrooms_number = $request->input('bathrooms_number');
         if ($request->input('services') != null) $services = explode(',', $request->input('services'));
-        
+
         // $services = explode(',', $request->input('services'));
 
         $query = Apartment::query();
@@ -88,7 +89,7 @@ class ApartmentController extends Controller
             $response = [
                 'success' => true,
                 'message' => 'Appartamenti ottenuti con successo',
-                'apartments' => $apartments,
+                'apartments' => $apartments
             ];
         } else {
             $response = [
@@ -138,14 +139,26 @@ class ApartmentController extends Controller
         $data = $request->validated();
 
         $data['slug'] = Str::slug($data['title']);
+        // $address = $data['address'];
+        // $tomtom_api_key = 'Vru3uP06eapOxpYMujwrRlVLMB5Vkqch;';
+
+        // $client = new Client();
+        // $coordinates = $client->request('GET', 'https://api.tomtom.com/search/2/geocode/' . $address . '.json?key=' . $tomtom_api_key . '&typeahead=true&limit=1&radius=500');
+
+        // if ($coordinates->getStatusCode() == 200) {
+        //     // Ottieni il contenuto della risposta e decodificalo come JSON
+        //     $response = $coordinates->getBody()->getContents();
+        //     $responseDecode = json_decode($response);
+        // }
 
         $newApartment = new Apartment();
+
 
         $newApartment->title = $data['title'];
         $newApartment->slug = Str::slug($data['title']);
         $newApartment->lat = $data['lat'];
         $newApartment->lng = $data['lng'];
-        $newApartment->address = $data['address'];
+        $newApartment->address = $data['address'];;
         $newApartment->price = $data['price'];
         $newApartment->image = $data['image'];
         $newApartment->beds_number = $data['beds_number'];
