@@ -28,7 +28,6 @@ class StoreApartmentRequest extends FormRequest
             'lat' => 'required|numeric|between:-90,90',
             'lng' => 'required|numeric|between:-180,180',
             'address' => 'required|max:512',
-            'image' => 'required',
             'visibility' => 'required|boolean',
             'price' => 'required|numeric|max:1500|regex:/^\d+(\.\d{1,2})?$/',
             'rooms_number' => 'required|numeric|min:1|max:8',

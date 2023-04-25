@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 // Models
-use App\Models\ApartmentDetail;
 use App\Models\Image;
 
 class Apartment extends Model
@@ -20,7 +19,6 @@ class Apartment extends Model
         'lat',
         'lng',
         'address',
-        'image',
         'price',
         'visibility',
         'rooms_number', 

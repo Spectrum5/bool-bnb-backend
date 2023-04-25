@@ -29,7 +29,6 @@ class UpdateApartmentRequest extends FormRequest
             'lat' => 'required|numeric|between:-90,90',
             'lng' => 'required|numeric|between:-180,180',
             'address' => 'required|max:512',
-            'image' => 'required',
             'visibility' => 'required|boolean',
             'price' => 'required|numeric|max:1500',
             'rooms_number' => 'required|numeric|min:1|max:8',

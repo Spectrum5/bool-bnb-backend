@@ -160,7 +160,6 @@ class ApartmentController extends Controller
         $newApartment->lng = $data['lng'];
         $newApartment->address = $data['address'];;
         $newApartment->price = $data['price'];
-        $newApartment->image = $data['image'];
         $newApartment->beds_number = $data['beds_number'];
         $newApartment->rooms_number = $data['rooms_number'];
         $newApartment->bathrooms_number = $data['bathrooms_number'];
@@ -181,6 +180,7 @@ class ApartmentController extends Controller
             'message' => 'Appartamento aggiunto con successo',
             'newApartment' => $newApartment,
             'allServices' => $services,
+            'apartment_id' => $newApartment->id
         ];
 
         return response()->json($response);

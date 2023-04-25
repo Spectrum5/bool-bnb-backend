@@ -28,8 +28,8 @@ class ImageController extends Controller
             foreach ($files as $index => $file) {
                 $fileName = $file->getClientOriginalName();
 
-                $fileName = Str::random(40) . $id . 'jpg';
-                $path = 'public/apartments/' . $fileName;
+                $fileName = Str::random(40) . $id . '.jpg';
+                $path = 'apartments/' . $fileName;
                 Storage::put($path, file_get_contents($file));
 
                 $newImage = new Image;
@@ -40,12 +40,12 @@ class ImageController extends Controller
 
             $response = [
                 'success' => true,
-                'message' => 'Image added successfully.',
+                'message' => 'Immagini aggiunte con successo',
             ];
         } catch (Exception $e) {
             $response = [
                 'success' => false,
-                'message' => 'Error while adding image.',
+                'message' => "Errore nell'aggiunta delle immagini",
             ];
         }
 
@@ -60,13 +60,13 @@ class ImageController extends Controller
 
             $response = [
                 'success' => true,
-                'message' => 'Image downloaded successfully.',
+                'message' => 'Immagini scaricate con successo',
                 'images' => $images
             ];
         } catch (Exception $e) {
             $response = [
                 'success' => false,
-                'message' => 'Error while downloading image.',
+                'message' => "Errore nell'aggiunta delle immagini",
             ];
         }
 
