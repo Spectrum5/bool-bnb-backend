@@ -35,7 +35,6 @@ class ApartmentTableSeeder extends Seeder
             $newApartment->lat = $faker->latitude($min = -90, $max = 90);
             $newApartment->lng = $faker->longitude($min = -180, $max = 180);
             $newApartment->address = $faker->address();
-            $newApartment->image = $i.'.jpg';
             $newApartment->price = $faker->numberBetween(100, 1500);
             $newApartment->visibility = $faker->boolean();
             $newApartment->rooms_number = $faker->numberBetween(1, 8);
