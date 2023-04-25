@@ -13,12 +13,17 @@ use App\Http\Requests\Apartment\UpdateApartmentRequest;
 
 // Helpers
 use Illuminate\Support\Str;
+use \Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+// use Illuminate\Support\Collection;
+// \Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 // Models
 use App\Models\Apartment;
 use App\Models\Service;
 use App\Models\Sponsor;
+use Spatie\FlareClient\Api;
 
 class ApartmentController extends Controller
 {
@@ -30,18 +35,51 @@ class ApartmentController extends Controller
     public function index(Request $request)
     {
         $apartmentsPerPage = 18;
-        $title = $request->input('title');
-        $user_id = $request->input('user_id');
 
-        if ($title) {
-            $apartments = Apartment::where('title','LIKE',"%{$title}%")->with('services')->get();
-        }
+        if ($request->input('user_id') != null) $user_id = $request->input('user_id');
+        if ($request->input('address') != null) $address = $request->input('address');
+        if ($request->input('rooms_number') != null) $rooms_number = $request->input('rooms_number');
+        if ($request->input('beds_number') != null) $beds_number = $request->input('beds_number');
+        if ($request->input('bathrooms_number') != null) $bathrooms_number = $request->input('bathrooms_number');
+        if ($request->input('services') != null) $services = explode(',', $request->input('services'));
+        
+        // $services = explode(',', $request->input('services'));
 
+        $query = Apartment::query();
 
-        else if ($user_id && $user_id == Auth::user()->id) {
+        if (isset($address) || isset($rooms_number) || isset($beds_number) || isset($bathrooms_number) || isset($services)) {
+            $apartments = new \Illuminate\Database\Eloquent\Collection;
+
+            if ($services != null) {
+
+                // Ottiene gli ID degli Apartments che hanno tutti i services in $services
+                $apartmentIds = DB::table('apartment_service')
+                    ->whereIn('service_id', $services)
+                    ->groupBy('apartment_id')
+                    ->havingRaw('COUNT(DISTINCT service_id) = ?', [count($services)])
+                    ->pluck('apartment_id')
+                    ->all();
+            }
+
+            if (isset($address)) {
+                $query->where('address', 'LIKE', "%{$address}%");
+            }
+            if (isset($rooms_number)) {
+                $query->where('rooms_number', '>=', $rooms_number);
+            }
+            if (isset($beds_number)) {
+                $query->where('beds_number', '>=', $beds_number);
+            }
+            if (isset($bathrooms_number)) {
+                $query->where('bathrooms_number', '>=', $bathrooms_number);
+            }
+
+            $apartments = $query->with('services')->get();
+            $query->whereIn('id', $apartmentIds);
+            $apartments = $query->with('services')->paginate($apartmentsPerPage);
+        } else if (isset($user_id) && $user_id == Auth::user()->id) {
             $apartments = Apartment::where('user_id', $user_id)->with('services')->get();
-        }
-        else {
+        } else {
             $apartments = Apartment::with('services')->paginate($apartmentsPerPage);
         }
 
@@ -49,14 +87,13 @@ class ApartmentController extends Controller
         if ($apartments) {
             $response = [
                 'success' => true,
-                'message' => 'success',
+                'message' => 'Appartamenti ottenuti con successo',
                 'apartments' => $apartments,
-                'user' => Auth::user()
             ];
         } else {
             $response = [
                 'success' => false,
-                'message' => 'error'
+                'message' => "Errore nell'ottenimento degli appartamenti"
             ];
         }
 
@@ -118,14 +155,14 @@ class ApartmentController extends Controller
         $newApartment->size = $data['size'];
         $newApartment->description = $data['description'];
         $newApartment->user_id = $data['user_id'];
-        
+
         $newApartment->save();
 
         $services = $data['services'];
         foreach ($services as $service) {
             $newApartment->services()->attach($service);
         };
-    
+
         $response = [
             'success' => true,
             'message' => 'Appartamento aggiunto con successo',
