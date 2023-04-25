@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ApartmentController;
 use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\ServiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,3 +30,4 @@ Route::resource('messages', MessageController::class);
 
 Route::resource('apartments', ApartmentController::class);
 Route::resource('images', ImageController::class);
+Route::resource('services', ServiceController::class);
