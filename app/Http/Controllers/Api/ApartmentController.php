@@ -30,37 +30,57 @@ class ApartmentController extends Controller
     public function index(Request $request)
     {
         $apartmentsPerPage = 18;
-        $title = $request->input('title');
-        $user_id = $request->input('user_id');
+ 
+        if ($request->input('user_id') != null) $user_id = $request->input('user_id');
+        if ($request->input('destination') != null) $destination = $request->input('destination');
+        if ($request->input('rooms_number') != null) $rooms_number = $request->input('rooms_number');
+        if ($request->input('beds_number') != null) $beds_number = $request->input('beds_number');
+        if ($request->input('bathrooms_number') != null) $bathrooms_number = $request->input('bathrooms_number');
+        if ($request->input('services') != null) $services = $request->input('services');
 
-        if ($title) {
-            $apartments = Apartment::where('title','LIKE',"%{$title}%")->with('services')->get();
+        if (isset($destination)) {
+            $destination_filtered = Apartment::where('address','LIKE',"%{$destination}%")->with('services')->get();
         }
+        if (isset($rooms_number)) {
+            $rooms_number_filtered = Apartment::where('rooms_number','>', $rooms_number)->with('services')->get();
+        }
+        if (isset($beds_number)) {
+            $beds_number_filtered = Apartment::where('beds_number','>', $beds_number)->with('services')->get();
+        }
+        if (isset($bathrooms_number)) {
+            $bathrooms_number_filtered = Apartment::where('bathrooms_number','>', $bathrooms_number)->with('services')->get();
+        }
+        // if ($services) {
+            $allApartments = Apartment::all();
+            $services_filtered = $allApartments::services();
+            // dd($services_filtered);
+            // ->where('services','>', $services)->with('services')->get()
+        // }
 
 
-        else if ($user_id && $user_id == Auth::user()->id) {
-            $apartments = Apartment::where('user_id', $user_id)->with('services')->get();
-        }
-        else {
-            $apartments = Apartment::with('services')->paginate($apartmentsPerPage);
-        }
+        // else if ($user_id && $user_id == Auth::user()->id) {
+        //     $apartments = Apartment::where('user_id', $user_id)->with('services')->get();
+        // }
+        // else {
+        //     $apartments = Apartment::with('services')->paginate($apartmentsPerPage);
+        // }
 
         // AGGIUNGERE VALIDAZIONI ID
-        if ($apartments) {
-            $response = [
-                'success' => true,
-                'message' => 'success',
-                'apartments' => $apartments,
-                'user' => Auth::user()
-            ];
-        } else {
-            $response = [
-                'success' => false,
-                'message' => 'error'
-            ];
-        }
+        // if ($apartments) {
+        //     $response = [
+        //         'success' => true,
+        //         'message' => 'success',
+        //         'apartments' => $apartments,
+        //         'user' => Auth::user()
+        //     ];
+        // } else {
+        //     $response = [
+        //         'success' => false,
+        //         'message' => 'error'
+        //     ];
+        // }
 
-        return response()->json($response);
+        return response()->json($apartmentsPerPage);
     }
 
     /**
