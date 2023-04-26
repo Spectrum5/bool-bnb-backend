@@ -42,7 +42,8 @@ class ApartmentController extends Controller
         if ($request->input('rooms_number') != null) $rooms_number = $request->input('rooms_number');
         if ($request->input('beds_number') != null) $beds_number = $request->input('beds_number');
         if ($request->input('bathrooms_number') != null) $bathrooms_number = $request->input('bathrooms_number');
-        if ($request->input('services') != null) $services = explode(',', $request->input('services'));
+        // if ($request->input('services') != null) $services = explode(',', $request->input('services'));
+        if ($request->input('services') != null) $services = $request->input('services');
 
         // $services = explode(',', $request->input('services'));
 
