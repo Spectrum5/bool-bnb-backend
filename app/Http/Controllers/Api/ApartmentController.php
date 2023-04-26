@@ -51,7 +51,8 @@ class ApartmentController extends Controller
         if (isset($address) || isset($rooms_number) || isset($beds_number) || isset($bathrooms_number) || isset($services)) {
             $apartments = new \Illuminate\Database\Eloquent\Collection;
 
-            if ($services != null) {
+            // if (isset($services) && count($services) > 0) {
+                if (isset($services) && $services != null) {
 
                 // Ottiene gli ID degli Apartments che hanno tutti i services in $services
                 $apartmentIds = DB::table('apartment_service')
@@ -60,10 +61,15 @@ class ApartmentController extends Controller
                     ->havingRaw('COUNT(DISTINCT service_id) = ?', [count($services)])
                     ->pluck('apartment_id')
                     ->all();
+
+                $query->whereIn('id', $apartmentIds);
+                $apartments = $query->with('services')->paginate($apartmentsPerPage);
             }
 
             if (isset($address)) {
-                $query->where('address', 'LIKE', "%{$address}%");
+                $addressFiltered = str_replace(',', ' ', $address);
+                // $address = explode(',', $address);
+                $query->where('address', 'LIKE', "%{$addressFiltered}%");
             }
             if (isset($rooms_number)) {
                 $query->where('rooms_number', '>=', $rooms_number);
@@ -76,8 +82,8 @@ class ApartmentController extends Controller
             }
 
             $apartments = $query->with('services')->get();
-            $query->whereIn('id', $apartmentIds);
-            $apartments = $query->with('services')->paginate($apartmentsPerPage);
+            // $query->whereIn('id', $apartmentIds);
+            // $apartments = $query->with('services')->paginate($apartmentsPerPage);
         } else if (isset($user_id) && $user_id == Auth::user()->id) {
             $apartments = Apartment::where('user_id', $user_id)->with('services')->get();
         } else {
@@ -85,11 +91,17 @@ class ApartmentController extends Controller
         }
 
         // AGGIUNGERE VALIDAZIONI ID
-        if ($apartments) {
+        if (count($apartments) > 0) {
             $response = [
                 'success' => true,
                 'message' => 'Appartamenti ottenuti con successo',
-                'apartments' => $apartments
+                'apartments' => $apartments,
+                'address' => $address ?? 'No address Provided',
+                'rooms_number' => $rooms_number ?? 'No rooms_number Provided',
+                'beds_number' => $beds_number ?? 'No beds_number Provided',
+                'bathrooms_number' => $bathrooms_number ?? 'No bathrooms_number Provided',
+                'services' => $services ?? 'No services Provided',
+                // 'query' => $query,
             ];
         } else {
             $response = [
@@ -151,14 +163,19 @@ class ApartmentController extends Controller
         //     $responseDecode = json_decode($response);
         // }
 
+        $title = strtolower($data['title']);
+
+        if (Str::contains($title, ', ')) {
+            $title = str_replace(',', ','.' ', $title);
+        }
+
         $newApartment = new Apartment();
 
-
-        $newApartment->title = $data['title'];
+        $newApartment->title = $title;
         $newApartment->slug = Str::slug($data['title']);
         $newApartment->lat = $data['lat'];
         $newApartment->lng = $data['lng'];
-        $newApartment->address = $data['address'];;
+        $newApartment->address = $data['address'];
         $newApartment->price = $data['price'];
         $newApartment->beds_number = $data['beds_number'];
         $newApartment->rooms_number = $data['rooms_number'];
