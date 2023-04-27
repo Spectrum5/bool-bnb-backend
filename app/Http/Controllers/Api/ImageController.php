@@ -29,7 +29,7 @@ class ImageController extends Controller
                 $fileName = $file->getClientOriginalName();
 
                 $fileName = Str::random(40) . $id . '.jpg';
-                $path = 'apartments/' . $fileName;
+                $path = 'public/apartments/' . $fileName;
                 Storage::put($path, file_get_contents($file));
 
                 $newImage = new Image;

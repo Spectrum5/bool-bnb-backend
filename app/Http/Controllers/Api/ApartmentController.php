@@ -68,9 +68,10 @@ class ApartmentController extends Controller
             }
 
             if (isset($address)) {
-                $addressFiltered = str_replace(',', ' ', $address);
+                // $addressFiltered = str_replace(',', ' ', $address);
                 // $address = explode(',', $address);
-                $query->where('address', 'LIKE', "%{$addressFiltered}%");
+                $query->where('address', 'LIKE', "%{$address}%");
+                // $query->where('address', 'LIKE', "%{$addressFiltered}%");
             }
             if (isset($rooms_number)) {
                 $query->where('rooms_number', '>=', $rooms_number);
