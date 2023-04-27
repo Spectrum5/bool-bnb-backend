@@ -23,18 +23,18 @@ class ServiceTableSeeder extends Seeder
 
         $services = [
             ['name' => 'wi-fi', 'icon' => 'wifi'],
-            ['name' => 'piscina', 'icon' => 'water-ladder'],
-            ['name' => 'parcheggio', 'icon' => 'car-side'],
-            ['name' => 'asciuga capelli', 'icon' => 'gun'],
-            ['name' => 'cucina', 'icon' => 'kitchen-set'],
             ['name' => 'tv', 'icon' => 'tv'],
             ['name' => 'aria condizionata', 'icon' => 'snowflake'],
+            ['name' => 'lavatrice', 'icon' => 'soap'],
+            ['name' => 'cassaforte', 'icon' => 'vault'],
+            ['name' => 'piscina', 'icon' => 'water-ladder'],
+            ['name' => 'parcheggio', 'icon' => 'car-side'],
             ['name' => 'sauna', 'icon' => 'hot-tub-person'],
+            ['name' => 'cucina', 'icon' => 'utensils'],
+            ['name' => 'colazione inclusa', 'icon' => 'mug-saucer'],
             ['name' => 'portineria', 'icon' => 'bell-concierge'],
             ['name' => 'servizio pulizie', 'icon' => 'broom'],
-            ['name' => 'lavatrice', 'icon' => 'soap'],
             ['name' => 'amico degli animali', 'icon' => 'paw'],
-            ['name' => 'cassaforte', 'icon' => 'vault'],
         ];
 
         foreach ($services as $service) {
