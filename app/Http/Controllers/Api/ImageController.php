@@ -29,7 +29,7 @@ class ImageController extends Controller
                 $fileName = $file->getClientOriginalName();
 
                 $fileName = Str::random(40) . $id . '.jpg';
-                $path = 'public/apartments/' . $fileName;
+                $path = 'apartments/' . $fileName;
                 Storage::put($path, file_get_contents($file));
 
                 $newImage = new Image;
@@ -67,6 +67,39 @@ class ImageController extends Controller
             $response = [
                 'success' => false,
                 'message' => "Errore nell'aggiunta delle immagini",
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function update(Request $request)
+    {
+        try {
+            $files = $request->allFiles();
+            $id = $request['apartment_id'];
+
+            foreach ($files as $index => $file) {
+                $fileName = $file->getClientOriginalName();
+
+                $fileName = Str::random(40) . $id . '.jpg';
+                $path = 'apartments/' . $fileName;
+                Storage::put($path, file_get_contents($file));
+
+                $newImage = new Image;
+                $newImage->url = $fileName;
+                $apartment = Apartment::find($id);
+                $apartment->images()->sync($newImage);
+            }
+
+            $response = [
+                'success' => true,
+                'message' => 'Immagini aggiornate con successo',
+            ];
+        } catch (Exception $e) {
+            $response = [
+                'success' => false,
+                'message' => "Errore nell'aggiornamento delle immagini",
             ];
         }
 
