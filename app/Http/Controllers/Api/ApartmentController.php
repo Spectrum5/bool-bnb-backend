@@ -283,7 +283,7 @@ class ApartmentController extends Controller
         $response = [
             'success' => true,
             'message' => 'Apartment updated successfully.',
-            'data' => $data
+            'apartment_id' => $apartment->id
         ];
 
         return response()->json($response);
