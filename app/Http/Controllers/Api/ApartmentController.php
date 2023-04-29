@@ -35,7 +35,7 @@ class ApartmentController extends Controller
      */
     public function index(Request $request)
     {
-        $apartmentsPerPage = 18;
+        $apartmentsPerPage = 15;
 
         if ($request->input('user_id') != null) $user_id = $request->input('user_id');
         if ($request->input('address') != null) $address = $request->input('address');
@@ -283,7 +283,7 @@ class ApartmentController extends Controller
         $response = [
             'success' => true,
             'message' => 'Apartment updated successfully.',
-            'data' => $data
+            'apartment_id' => $apartment->id
         ];
 
         return response()->json($response);

@@ -105,4 +105,16 @@ class ImageController extends Controller
 
         return response()->json($response);
     }
+
+    public function destroy($id)
+    {
+        Image::where('id', $id)->delete();
+
+        $response = [
+            'success' => true,
+            'message' => 'Immagine eliminata con successo'
+        ];
+
+        return response()->json($response);
+    }
 }
