@@ -29,5 +29,5 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::resource('messages', MessageController::class);
 
 Route::resource('apartments', ApartmentController::class);
-Route::resource('images', ImageController::class);
+Route::resource('images', ImageController::class)->withoutMiddleware("throttle:api");
 Route::resource('services', ServiceController::class);
