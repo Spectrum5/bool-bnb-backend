@@ -38,7 +38,10 @@ class ApartmentController extends Controller
         $apartmentsPerPage = 15;
 
         if ($request->input('user_id') != null) $user_id = $request->input('user_id');
-        if ($request->input('address') != null) $address = $request->input('address');
+        // if ($request->input('address') != null) $address = $request->input('address');
+        if ($request->input('lat') != null) $lat = $request->input('lat');
+        if ($request->input('lng') != null) $lng = $request->input('lng');
+        if ($request->input('radius') != null) $radius = $request->input('radius');
         if ($request->input('rooms_number') != null) $rooms_number = $request->input('rooms_number');
         if ($request->input('beds_number') != null) $beds_number = $request->input('beds_number');
         if ($request->input('bathrooms_number') != null) $bathrooms_number = $request->input('bathrooms_number');
@@ -46,32 +49,66 @@ class ApartmentController extends Controller
         if ($request->input('services') != null) $services = $request->input('services');
 
         // $services = explode(',', $request->input('services'));
-
+        $distances= [];
         $query = Apartment::query();
 
-        if (isset($address) || isset($rooms_number) || isset($beds_number) || isset($bathrooms_number) || isset($services)) {
+        if (isset($lat) || isset($lng) || isset($rooms_number) || isset($beds_number) || isset($bathrooms_number) || isset($services)) {
             $apartments = new \Illuminate\Database\Eloquent\Collection;
 
             // if (isset($services) && count($services) > 0) {
-                if (isset($services) && $services != null) {
+            if (isset($services) && $services != null) {
 
                 // Ottiene gli ID degli Apartments che hanno tutti i services in $services
-                $apartmentIds = DB::table('apartment_service')
+                $apartmentServicesIds = DB::table('apartment_service')
                     ->whereIn('service_id', $services)
                     ->groupBy('apartment_id')
                     ->havingRaw('COUNT(DISTINCT service_id) = ?', [count($services)])
                     ->pluck('apartment_id')
                     ->all();
 
-                $query->whereIn('id', $apartmentIds);
+                $query->whereIn('id', $apartmentServicesIds);
                 $apartments = $query->with('services')->paginate($apartmentsPerPage);
             }
 
-            if (isset($address)) {
+            if (isset($lat) && isset($lng) && isset($radius)) {
                 // $addressFiltered = str_replace(',', ' ', $address);
                 // $address = explode(',', $address);
-                $query->where('address', 'LIKE', "%{$address}%");
+
+                // $apartments[] = 
+
+                $allApartments = Apartment::all();
+
+                function deg2rad($deg)
+                {
+                    return $deg * (pi() / 180);
+                }
+
+                function getDistanceFromLatLonInKm($lat1, $lon1, $lat2, $lon2)
+                {
+                    $earthRadiusKm = 6371; // Raggio della Terra in chilometri
+                    $dLat = deg2rad($lat2 - $lat1); // Differenza di latitudine in radianti
+                    $dLon = deg2rad($lon2 - $lon1); // Differenza di longitudine in radianti
+                    $a = sin($dLat / 2) * sin($dLat / 2) +
+                        cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+                        sin($dLon / 2) * sin($dLon / 2);
+                    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+                    $distance = $earthRadiusKm * $c; // Distanza in chilometri
+                    return $distance;
+                }
+
+                foreach ($allApartments as $apartment) {
+                    $distance = getDistanceFromLatLonInKm($lat, $lng, $apartment['lat'], $apartment['lng']);
+                    if ($distance <= $radius) {
+                        $apartmentRadiusIds[] = $apartment->id;
+                        // $apartments[] = $apartment;
+                        $distances[] = $distance;
+                    }
+                }
+                $query->whereIn('id', $apartmentRadiusIds);
+
+                // $query->where('address', 'LIKE', "%{$address}%");
                 // $query->where('address', 'LIKE', "%{$addressFiltered}%");
+
             }
             if (isset($rooms_number)) {
                 $query->where('rooms_number', '>=', $rooms_number);
@@ -83,7 +120,7 @@ class ApartmentController extends Controller
                 $query->where('bathrooms_number', '>=', $bathrooms_number);
             }
 
-            $apartments = $query->with('services')->get();
+            $apartments = $query->with('services')->paginate($apartmentsPerPage);
             // $query->whereIn('id', $apartmentIds);
             // $apartments = $query->with('services')->paginate($apartmentsPerPage);
         } else if (isset($user_id) && $user_id == Auth::user()->id) {
@@ -103,6 +140,9 @@ class ApartmentController extends Controller
                 'beds_number' => $beds_number ?? 'No beds_number Provided',
                 'bathrooms_number' => $bathrooms_number ?? 'No bathrooms_number Provided',
                 'services' => $services ?? 'No services Provided',
+                'lat' => $lat ?? 'No lat Provided',
+                'lng' => $lng ?? 'No lng Provided',
+                'distanze' => $distances,
                 // 'query' => $query,
             ];
         } else {
@@ -168,7 +208,7 @@ class ApartmentController extends Controller
         $title = strtolower($data['title']);
 
         if (Str::contains($title, ', ')) {
-            $title = str_replace(',', ','.' ', $title);
+            $title = str_replace(',', ',' . ' ', $title);
         }
 
         $newApartment = new Apartment();
