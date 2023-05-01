@@ -39,14 +39,14 @@ class MessageTableSeeder extends Seeder
             ['text' => 'La struttura dispone di una cassaforte o di un sistema di sicurezza per gli oggetti di valore degli ospiti?']
         ];
         
-        foreach ($messages as $singleMessage) {
-            
+        for ($i=0; $i < 200; $i++) {
+
             $name = $faker->firstName();
 
             $newMessage = new Message;
 
             $newMessage->apartment_id = Apartment::inRandomOrder()->first()->id;
-            $newMessage->message = $singleMessage['text'];
+            $newMessage->message = $messages[rand(0,14)]['text'];
             $newMessage->email = Str::lower($name) . '@email.com';;
 
             $newMessage->save();
