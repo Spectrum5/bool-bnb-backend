@@ -26,8 +26,11 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
     // Aggiungere rotte store, edit e destroy solo per utenti autenticati
 });
-Route::resource('messages', MessageController::class);
 
+Route::get('/apartments/indexUser', [ApartmentController::class, 'indexUser']);
+Route::get('/apartments/indexFilter', [ApartmentController::class, 'indexFilter']);
+
+Route::resource('messages', MessageController::class);
 Route::resource('apartments', ApartmentController::class);
 Route::resource('images', ImageController::class)->withoutMiddleware("throttle:api");
 Route::resource('services', ServiceController::class);
