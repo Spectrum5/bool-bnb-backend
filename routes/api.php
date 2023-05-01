@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ApartmentController;
 use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\SponsorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,3 +32,7 @@ Route::resource('messages', MessageController::class);
 Route::resource('apartments', ApartmentController::class);
 Route::resource('images', ImageController::class)->withoutMiddleware("throttle:api");
 Route::resource('services', ServiceController::class);
+
+// Rotta per la sponsorizzazione
+Route::resource('sponsors', SponsorController::class);
+// Route::post('/sponsor', [SponsorController::class, 'store'])->name('sponsors.store');
