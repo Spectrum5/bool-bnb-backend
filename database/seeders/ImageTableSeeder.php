@@ -27,13 +27,13 @@ class ImageTableSeeder extends Seeder
         foreach ($apartments as $apartment) {
 
             $newImage = new Image;
-            $newImage->url = 'placeholder-' . rand(1, 6) . '.jpg';
+            $newImage->url = 'placeholder-' . rand(1, 100) . '.jpg';
 
             $apartment = Apartment::find($apartment->id);
             $apartment->images()->save($newImage);
 
             $newImage = new Image;
-            $newImage->url = 'placeholder-' . rand(1, 6) . '.jpg';
+            $newImage->url = 'placeholder-' . rand(1, 100) . '.jpg';
             $apartment->images()->save($newImage);
         }
     }
