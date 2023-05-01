@@ -31,11 +31,11 @@ $hotels = [
     "longitude" => "12.33142",
     "description"=> "Un appartamento di charme a Venezia, con camere eleganti e raffinate, arredi antichi e servizi di alto livello, per una vacanza di cultura e arte nel capoluogo veneto."],
 
-    ["nome"=> "Ville Sole",
-    "address"=> "Sabi Sand Game Reserve, Mpumalanga, Sudafrica",
-    "latitude" => "-24.7905",
-    "longitude" => "31.4385",
-    "description"=> "Le pittoresche ville di lusso offrono due ville separate, ognuna con una spaziosa camera queen-size e un bagno interno. La vasca da bagno si affaccia sulla splendida catena montuosa della cittadina di campagna. Pittoresco ha un'atmosfera lussuosa ed elegante."],
+    ["nome"=> "Suite Aurora",
+    "address"=> "Schottenfeldgasse 39, 1070 Wien, Austria",
+    "latitude" => "48.202072",
+    "longitude" => "16.342501",
+    "description"=> "La Suite Aurora è situata nel cuore di Vienna, a pochi passi da negozi, ristoranti e attrazioni turistiche. E' la scelta ideale per chi cerca un soggiorno confortevole e conveniente nella vibrante città di Vienna. La posizione dell'hotel permette di raggiungere facilmente i principali luoghi d'interesse turistico della città, come il Museo di Storia Naturale, il Palazzo di Schönbrunn e la Cattedrale di Santo Stefano. La struttura offre anche un servizio di noleggio biciclette per esplorare la città in modo eco-friendly e divertente."],
 
     ["nome"=> "Casa Paradiso",
     "address"=> "Campo Santa Maria del Giglio, 2467, 30124 Venezia VE, Italia",
