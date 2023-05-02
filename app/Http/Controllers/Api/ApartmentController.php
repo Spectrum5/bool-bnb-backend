@@ -305,16 +305,14 @@ class ApartmentController extends Controller
     public function edit($slug)
     {
 
-        $apartment = Apartment::where('slug', $slug)->with('services')->first();
-        $services = Service::all();
+        $apartment = Apartment::where('slug', $slug)->with('services', 'images')->first();
         $sponsors = Sponsor::all();
 
-        if ($apartment && $services && $sponsors) {
+        if ($apartment && $sponsors) {
             $response = [
                 'success' => true,
                 'message' => 'Appartamento, Servizi e Sponsor ottenuti con successo',
                 'apartment' => $apartment,
-                'services' => $services,
                 'sponsors' => $sponsors,
             ];
         } else {
