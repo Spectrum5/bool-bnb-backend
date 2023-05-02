@@ -29,7 +29,7 @@ class ApartmentTableSeeder extends Seeder
 
             $newApartment = new Apartment;
 
-            $title = $singleApartment['nome'];
+            $title = strtolower($singleApartment['nome']);
 
             $newApartment->user_id = User::inRandomOrder()->first()->id;
             $newApartment->title = $title;
