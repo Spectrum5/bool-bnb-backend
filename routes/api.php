@@ -38,4 +38,5 @@ Route::resource('services', ServiceController::class);
 
 // Rotta per la sponsorizzazione
 Route::resource('sponsors', SponsorController::class);
+Route::post('/sponsors/handlePayment', [SponsorController::class, 'handlePayment']);
 // Route::post('/sponsor', [SponsorController::class, 'store'])->name('sponsors.store');
