@@ -36,7 +36,7 @@ class MessageController extends Controller
         }
 
         // Ottiene i messaggi il cui apartment_id e' nella lista degli id degli appartamenti dell'utente autenticato
-        $messages = Message::whereIn('apartment_id', $ids)->get();
+        $messages = Message::whereIn('apartment_id', $ids)->with('apartment')->get();
 
         if ($messages) {
             $response = [

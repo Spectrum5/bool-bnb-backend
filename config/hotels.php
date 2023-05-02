@@ -246,7 +246,7 @@ return [
         "address" => "330 N Wabash Ave, Chicago, IL 60611, Stati Uniti",
         "latitude" => "41.888896",
         "longitude" => "-87.626838",
-        "description" => "Suite trendy nel cuore di Chicago, con interni moderni, mobili di design e vista sullo skyline di una delle città più famose d/'America."
+        "description" => "Suite trendy nel cuore di Chicago, con interni moderni, mobili di design e vista sullo skyline di una delle città più famose d'America."
     ],
 
     [
