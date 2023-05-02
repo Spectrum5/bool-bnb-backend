@@ -194,6 +194,36 @@ class ApartmentController extends Controller
         return response()->json($response);
     }
 
+    // Mostra una lista degli appartamenti con un piano di sponsor attivo
+    public function indexSponsored(Request $request)
+    {
+
+        // Ottiene gli ID degli Apartments che hanno uno sponsor valido
+        $apartmentSponsoredIds = DB::table('apartment_sponsor')
+        ->whereDate('exp_date', '>=', now()->format('Y/m/d H:i'))
+        ->groupBy('apartment_id')
+        ->pluck('apartment_id')
+        ->all();
+
+        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->get();
+
+        // Response
+        if (isset($apartments) && count($apartments) > 0) {
+            $response = [
+                'success' => true,
+                'message' => 'Appartamenti sponsorizzati ottenuti con successo',
+                'apartments' => $apartments,
+            ];
+        } else {
+            $response = [
+                'success' => false,
+                'message' => "Nessun appartamento trovato"
+            ];
+        }
+
+        return response()->json($response);
+    }
+
     /**
      * Recupera le risorse per il form di creazione di una nuova risorsa
      *
