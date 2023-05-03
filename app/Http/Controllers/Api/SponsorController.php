@@ -40,12 +40,15 @@ class SponsorController extends Controller
         return response()->json($response);
     }
 
+    // Crea un elemento di Apartment-Sponsor
     public function handlePayment(Request $request)
     {
         if ($request->input('sponsor_id')) $sponsor_id = $request->input('sponsor_id');
+        if ($request->input('apartment_id')) $apartment_id = $request->input('apartment_id');
 
-        if(isset($sponsor_id) && $sponsor_id >= 1 && $sponsor_id <= count(Sponsor::all())) {
-            $apartment = Apartment::find($request->input('apartment_id'));
+        // Creazione Elemento
+        if(isset($sponsor_id) && $sponsor_id >= 1 && $sponsor_id <= count(Sponsor::all()) && isset($apartment_id)) {
+            $apartment = Apartment::find($apartment_id);
     
             $duration = Sponsor::find($request->input('sponsor_id'))->duration;
             $date = Carbon::now()->addHours($duration);
@@ -55,17 +58,19 @@ class SponsorController extends Controller
     
             $apartment->sponsors()->attach($request->input('sponsor_id'), ['exp_date' => $ending]);
 
+            // Response
             $response = [
                 'success' => true,
                 'message' => 'Appartamento Sponsorizzato con Successo',
-                'apartment_id' => $request->input('apartment_id'),
-                'sponsor_id' => $request->input('sponsor_id'),
+                'apartment_id' => $apartment_id,
+                'sponsor_id' => $apartment_id,
                 'creation_date' => $creation,
                 'ending_date' => $ending->format('Y/m/d H:i'),
                 'duration' => $duration
             ];
         }
         else {
+            // Response
             $response = [
                 'success' => false,
                 'message' => 'Errore aggiunta Appartamento Sponsorizzato'
@@ -74,7 +79,6 @@ class SponsorController extends Controller
 
         return response()->json($response);
     }
-
 
     /**
      * Get the token required to initialize the Braintree client
