@@ -13,12 +13,8 @@ use App\Http\Requests\Apartment\UpdateApartmentRequest;
 
 // Helpers
 use Illuminate\Support\Str;
-use \Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-// use Illuminate\Support\Collection;
-// \Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-// use GuzzleHttp\Client;
 
 // Models
 use App\Models\Apartment;
@@ -91,6 +87,12 @@ class ApartmentController extends Controller
         $query = Apartment::query();
         $apartments = new \Illuminate\Database\Eloquent\Collection;
 
+        // Prende tutti gli apartments che hanno anche un record in apartment_sponsor
+        $query
+            ->leftJoin('apartment_sponsor', 'apartments.id', '=', 'apartment_sponsor.apartment_id')
+            ->orderByRaw('CASE WHEN apartment_sponsor.exp_date > CURDATE() THEN 0 ELSE 1 END ASC')
+            ->orderBy('apartment_sponsor.exp_date', 'ASC');
+
         // Filtro raggio
         if ($request->input('lat') != null && $request->input('lng') != null && $request->input('radius') != null) {
             $lat = $request->input('lat');
@@ -131,11 +133,11 @@ class ApartmentController extends Controller
             array_multisort($distances, SORT_ASC, $apartmentRadiusIds);
 
             if (count($apartmentRadiusIds) > 0) {
-                $query->whereIn('id', $apartmentRadiusIds);
+                $query->whereIn('apartments.id', $apartmentRadiusIds);
 
                 $apartmentRadiusIdsString = implode(',', $apartmentRadiusIds);
 
-                $query->whereIn('id', $apartmentRadiusIds)->orderByRaw("FIELD(id, $apartmentRadiusIdsString)");
+                $query->whereIn('apartments.id', $apartmentRadiusIds)->orderByRaw("FIELD(apartments.id, $apartmentRadiusIdsString)");
             }
         }
 
@@ -169,11 +171,10 @@ class ApartmentController extends Controller
                 ->pluck('apartment_id')
                 ->all();
 
-            $query->whereIn('id', $apartmentServicesIds);
+            $query->whereIn('apartments.id', $apartmentServicesIds);
         }
-
-        // Query
-        $apartments = $query->with('images', 'sponsors')->paginate($apartmentsPerPage);
+        
+        $apartments = $query->with('images', 'sponsors')->select('apartments.*')->paginate($apartmentsPerPage);
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
@@ -181,8 +182,8 @@ class ApartmentController extends Controller
                 'success' => true,
                 'message' => 'Appartamenti filtrati ottenuti con successo',
                 'apartments' => $apartments,
-                'distanze ordinate' => $distances,
-                'ids ordinati' => $apartmentRadiusIds
+                'Distanze ordinate' => $distances,
+                'Ids ordinati' => $apartmentRadiusIds,
             ];
         } else {
             $response = [
@@ -197,15 +198,15 @@ class ApartmentController extends Controller
     // Mostra una lista degli appartamenti con un piano di sponsor attivo
     public function indexSponsored(Request $request)
     {
-
         // Ottiene gli ID degli Apartments che hanno uno sponsor valido
         $apartmentSponsoredIds = DB::table('apartment_sponsor')
-        ->whereDate('exp_date', '>=', now()->format('Y/m/d H:i'))
-        ->groupBy('apartment_id')
-        ->pluck('apartment_id')
-        ->all();
+            ->whereDate('exp_date', '>=', now()->format('Y/m/d H:i'))
+            ->groupBy('apartment_id')
+            ->pluck('apartment_id')
+            ->all();
 
-        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->get();
+        // Query
+        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->with('images')->get();
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
