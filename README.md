@@ -5,7 +5,3 @@
 <!-- $faker = new Faker\Generator();
 $faker->addProvider(new Faker\Provider\en_AU\Address($faker));
 $faker->state; // will give you only Australian states -->
-
-
-AGGIUNGERE VALIDAZIONI ID
-INVIO MAIL
