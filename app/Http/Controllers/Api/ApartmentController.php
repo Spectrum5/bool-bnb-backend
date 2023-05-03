@@ -174,7 +174,11 @@ class ApartmentController extends Controller
             $query->whereIn('apartments.id', $apartmentServicesIds);
         }
 
-        $apartments = $query->with('images', 'sponsors')->select('apartments.*')->paginate($apartmentsPerPage);
+        // $apartments = $query->with('images', 'sponsors')->select('apartments.*')->paginate($apartmentsPerPage);
+
+        $apartments = $query->with(['sponsors' => function ($query) {
+            $query->where('exp_date', '>', now())->first();
+        }, 'images'])->select('apartments.*')->paginate($apartmentsPerPage);
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
@@ -209,7 +213,7 @@ class ApartmentController extends Controller
             ->all();
 
         // Query
-        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->with('images')->paginate($apartmentsPerPage);
+        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->with('images', 'sponsors')->paginate($apartmentsPerPage);
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
