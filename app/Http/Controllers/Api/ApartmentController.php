@@ -173,7 +173,7 @@ class ApartmentController extends Controller
 
             $query->whereIn('apartments.id', $apartmentServicesIds);
         }
-        
+
         $apartments = $query->with('images', 'sponsors')->select('apartments.*')->paginate($apartmentsPerPage);
 
         // Response
@@ -198,6 +198,9 @@ class ApartmentController extends Controller
     // Mostra una lista degli appartamenti con un piano di sponsor attivo
     public function indexSponsored(Request $request)
     {
+        // Settings
+        $apartmentsPerPage = 10;
+
         // Ottiene gli ID degli Apartments che hanno uno sponsor valido
         $apartmentSponsoredIds = DB::table('apartment_sponsor')
             ->whereDate('exp_date', '>=', now()->format('Y/m/d H:i'))
@@ -206,7 +209,7 @@ class ApartmentController extends Controller
             ->all();
 
         // Query
-        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->with('images')->get();
+        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->with('images')->paginate($apartmentsPerPage);
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
@@ -322,7 +325,7 @@ class ApartmentController extends Controller
     public function show($slug)
     {
         // Query
-        $apartment = Apartment::where('slug', $slug)->with('services', 'sponsors', 'messages', 'images')->first();
+        $apartment = Apartment::where('slug', $slug)->with('services', 'user', 'sponsors', 'messages', 'images')->first();
 
         if ($apartment) {
             $response = [
