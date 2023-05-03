@@ -43,7 +43,7 @@ class SponsorController extends Controller
     // Crea un elemento di Apartment-Sponsor
     public function handlePayment(Request $request)
     {
-        if ($request->input('sponsor_id')) $apartment_id = $request->input('sponsor_id');
+        if ($request->input('sponsor_id')) $sponsor_id = $request->input('sponsor_id');
         if ($request->input('apartment_id')) $apartment_id = $request->input('apartment_id');
 
         // Creazione Elemento
