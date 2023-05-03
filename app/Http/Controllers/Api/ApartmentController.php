@@ -13,12 +13,8 @@ use App\Http\Requests\Apartment\UpdateApartmentRequest;
 
 // Helpers
 use Illuminate\Support\Str;
-use \Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-// use Illuminate\Support\Collection;
-// \Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-// use GuzzleHttp\Client;
 
 // Models
 use App\Models\Apartment;
@@ -33,17 +29,27 @@ class ApartmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
+        // Settings
         $apartmentsPerPage = 15;
 
-        $apartments = Apartment::with('images')->paginate($apartmentsPerPage);
+        // Query
+        $apartments = Apartment::where('visibility', 1)->with('images')->paginate($apartmentsPerPage);
 
-        $response = [
-            'success' => true,
-            'message' => 'Appartamenti ottenuti con successo',
-            'apartments' => $apartments
-        ];
+        // Response
+        if (isset($apartments) && count($apartments) > 0) {
+            $response = [
+                'success' => true,
+                'message' => 'Appartamenti ottenuti con successo',
+                'apartments' => $apartments
+            ];
+        } else {
+            $response = [
+                'success' => false,
+                'message' => 'Errore ottenimento Appartamenti'
+            ];
+        }
 
         return response()->json($response);
     }
@@ -51,9 +57,11 @@ class ApartmentController extends Controller
     // Mostra una lista delle risorse relative solo all'id passato
     public function indexUser()
     {
+        // Query
         $apartments = Apartment::where('user_id', Auth::user()->id)->get();
 
-        if (count($apartments) > 0) {
+        // Response
+        if (isset($apartments) && count($apartments) > 0) {
             $response = [
                 'success' => true,
                 'message' => 'Appartamenti personali ottenuti con successo',
@@ -62,7 +70,7 @@ class ApartmentController extends Controller
         } else {
             $response = [
                 'success' => false,
-                'message' => "Errore nell'ottenimento degli appartamenti personali"
+                'message' => "Errore ottenimento appartamenti personali"
             ];
         }
 
@@ -72,11 +80,18 @@ class ApartmentController extends Controller
     // Mostra una lista delle risorse filtrate secondo le query passate
     public function indexFilter(Request $request)
     {
+        // Settings
         $apartmentsPerPage = 15;
 
         $distances = [];
         $query = Apartment::query();
         $apartments = new \Illuminate\Database\Eloquent\Collection;
+
+        // Prende tutti gli apartments che hanno anche un record in apartment_sponsor
+        $query
+            ->leftJoin('apartment_sponsor', 'apartments.id', '=', 'apartment_sponsor.apartment_id')
+            ->orderByRaw('CASE WHEN apartment_sponsor.exp_date > CURDATE() THEN 0 ELSE 1 END ASC')
+            ->orderBy('apartment_sponsor.exp_date', 'ASC');
 
         // Filtro raggio
         if ($request->input('lat') != null && $request->input('lng') != null && $request->input('radius') != null) {
@@ -118,11 +133,11 @@ class ApartmentController extends Controller
             array_multisort($distances, SORT_ASC, $apartmentRadiusIds);
 
             if (count($apartmentRadiusIds) > 0) {
-                $query->whereIn('id', $apartmentRadiusIds);
+                $query->whereIn('apartments.id', $apartmentRadiusIds);
 
                 $apartmentRadiusIdsString = implode(',', $apartmentRadiusIds);
 
-                $query->whereIn('id', $apartmentRadiusIds)->orderByRaw("FIELD(id, $apartmentRadiusIdsString)");
+                $query->whereIn('apartments.id', $apartmentRadiusIds)->orderByRaw("FIELD(apartments.id, $apartmentRadiusIdsString)");
             }
         }
 
@@ -156,24 +171,61 @@ class ApartmentController extends Controller
                 ->pluck('apartment_id')
                 ->all();
 
-            $query->whereIn('id', $apartmentServicesIds);
+            $query->whereIn('apartments.id', $apartmentServicesIds);
         }
 
-        $apartments = $query->with('images', 'sponsors')->paginate($apartmentsPerPage);
+        // $apartments = $query->with('images', 'sponsors')->select('apartments.*')->paginate($apartmentsPerPage);
 
-        if (count($apartments) > 0) {
+        $apartments = $query->with(['sponsors' => function ($query) {
+            $query->where('exp_date', '>', now())->first();
+        }, 'images'])->select('apartments.*')->paginate($apartmentsPerPage);
+
+        // Response
+        if (isset($apartments) && count($apartments) > 0) {
             $response = [
                 'success' => true,
                 'message' => 'Appartamenti filtrati ottenuti con successo',
                 'apartments' => $apartments,
-                'distanze ordinate' => $distances,
-                'ids ordinati' => $apartmentRadiusIds
+                'Distanze ordinate' => $distances,
+                'Ids ordinati' => $apartmentRadiusIds,
             ];
         } else {
             $response = [
                 'success' => false,
-                'message' => "Nessun appartamento filtrato trovato",
+                'message' => "Nessun appartamento trovato"
+            ];
+        }
 
+        return response()->json($response);
+    }
+
+    // Mostra una lista degli appartamenti con un piano di sponsor attivo
+    public function indexSponsored(Request $request)
+    {
+        // Settings
+        $apartmentsPerPage = 10;
+
+        // Ottiene gli ID degli Apartments che hanno uno sponsor valido
+        $apartmentSponsoredIds = DB::table('apartment_sponsor')
+            ->whereDate('exp_date', '>=', now()->format('Y/m/d H:i'))
+            ->groupBy('apartment_id')
+            ->pluck('apartment_id')
+            ->all();
+
+        // Query
+        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->with('images', 'sponsors')->paginate($apartmentsPerPage);
+
+        // Response
+        if (isset($apartments) && count($apartments) > 0) {
+            $response = [
+                'success' => true,
+                'message' => 'Appartamenti sponsorizzati ottenuti con successo',
+                'apartments' => $apartments,
+            ];
+        } else {
+            $response = [
+                'success' => false,
+                'message' => "Nessun appartamento trovato"
             ];
         }
 
@@ -181,21 +233,19 @@ class ApartmentController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Recupera le risorse per il form di creazione di una nuova risorsa
      *
      * @return \Illuminate\Http\Response
      */
     public function create()
     {
         $services = Service::all();
-        $sponsors = Sponsor::all();
 
         try {
             $response = [
                 'success' => true,
-                'message' => 'Servizi e Sponsor ottenuti con successo',
-                'services' => $services,
-                'sponsors' => $sponsors,
+                'message' => 'Servizi ottenuti con successo',
+                'services' => $services
             ];
         } catch (Exception $e) {
             $response = [
@@ -215,57 +265,57 @@ class ApartmentController extends Controller
      */
     public function store(StoreApartmentRequest $request)
     {
+        // Validazione Dati
         $data = $request->validated();
 
-        $data['slug'] = Str::slug($data['title']);
-        // $address = $data['address'];
-        // $tomtom_api_key = 'Vru3uP06eapOxpYMujwrRlVLMB5Vkqch;';
-
-        // $client = new Client();
-        // $coordinates = $client->request('GET', 'https://api.tomtom.com/search/2/geocode/' . $address . '.json?key=' . $tomtom_api_key . '&typeahead=true&limit=1&radius=500');
-
-        // if ($coordinates->getStatusCode() == 200) {
-        //     // Ottieni il contenuto della risposta e decodificalo come JSON
-        //     $response = $coordinates->getBody()->getContents();
-        //     $responseDecode = json_decode($response);
-        // }
-
+        // Pulizia Titolo e Creazione Slug
         $title = strtolower($data['title']);
+        $data['slug'] = Str::slug($title);
 
         if (Str::contains($title, ', ')) {
             $title = str_replace(',', ',' . ' ', $title);
         }
 
-        $newApartment = new Apartment();
+        try {
+            // Creazione nuova istanza di Apartment e settaggio valori
+            $newApartment = new Apartment();
 
-        $newApartment->title = $title;
-        $newApartment->slug = Str::slug($data['title']);
-        $newApartment->lat = $data['lat'];
-        $newApartment->lng = $data['lng'];
-        $newApartment->address = $data['address'];
-        $newApartment->price = $data['price'];
-        $newApartment->beds_number = $data['beds_number'];
-        $newApartment->rooms_number = $data['rooms_number'];
-        $newApartment->bathrooms_number = $data['bathrooms_number'];
-        $newApartment->visibility = $data['visibility'];
-        $newApartment->size = $data['size'];
-        $newApartment->description = $data['description'];
-        $newApartment->user_id = $data['user_id'];
+            $newApartment->title = $title;
+            $newApartment->slug = $data['slug'];
+            $newApartment->lat = $data['lat'];
+            $newApartment->lng = $data['lng'];
+            $newApartment->address = $data['address'];
+            $newApartment->price = $data['price'];
+            $newApartment->beds_number = $data['beds_number'];
+            $newApartment->rooms_number = $data['rooms_number'];
+            $newApartment->bathrooms_number = $data['bathrooms_number'];
+            $newApartment->visibility = $data['visibility'];
+            $newApartment->size = $data['size'];
+            $newApartment->description = $data['description'];
+            $newApartment->user_id = $data['user_id'];
 
-        $newApartment->save();
+            $newApartment->save();
 
-        $services = $data['services'];
-        foreach ($services as $service) {
-            $newApartment->services()->attach($service);
-        };
+            // Collegamento dei servizi al nuovo appartamento
+            $services = $data['services'];
+            foreach ($services as $service) {
+                $newApartment->services()->attach($service);
+            };
 
-        $response = [
-            'success' => true,
-            'message' => 'Appartamento aggiunto con successo',
-            'newApartment' => $newApartment,
-            'allServices' => $services,
-            'apartment_id' => $newApartment->id
-        ];
+            // Response
+            $response = [
+                'success' => true,
+                'message' => 'Appartamento aggiunto con successo',
+                'newApartment' => $newApartment,
+                'apartment_id' => $newApartment->id
+            ];
+        } catch (Exception $e) {
+            // Response
+            $response = [
+                'success' => false,
+                'message' => 'Errore creazione nuovo Appartamento'
+            ];
+        }
 
         return response()->json($response);
     }
@@ -278,18 +328,19 @@ class ApartmentController extends Controller
      */
     public function show($slug)
     {
+        // Query
         $apartment = Apartment::where('slug', $slug)->with('services', 'user', 'sponsors', 'messages', 'images')->first();
 
         if ($apartment) {
             $response = [
                 'success' => true,
-                'message' => 'success',
+                'message' => 'Appartamento Trovato',
                 'apartment' => $apartment
             ];
         } else {
             $response = [
                 'success' => false,
-                'message' => 'error'
+                'message' => 'Appartamento non Trovato'
             ];
         }
 
@@ -304,21 +355,20 @@ class ApartmentController extends Controller
      */
     public function edit($slug)
     {
-
+        // Query
         $apartment = Apartment::where('slug', $slug)->with('services', 'images')->first();
-        $sponsors = Sponsor::all();
 
-        if ($apartment && $sponsors) {
+        // Response
+        if ($apartment) {
             $response = [
                 'success' => true,
-                'message' => 'Appartamento, Servizi e Sponsor ottenuti con successo',
-                'apartment' => $apartment,
-                'sponsors' => $sponsors,
+                'message' => 'Appartamento da aggiornare ottenuto con successo',
+                'apartment' => $apartment
             ];
         } else {
             $response = [
                 'success' => false,
-                'message' => "Errore nell'ottenimento di appartameno, servizi e sponsors"
+                'message' => "Errore nell'ottenimento dell'appartameno da aggiornare"
             ];
         }
 
@@ -336,36 +386,33 @@ class ApartmentController extends Controller
     public function update(UpdateApartmentRequest $request, Apartment $apartment)
     {
 
-        $data = $request->validated();
+        try {
+            // Validazione
+            $data = $request->validated();
 
-        // Ricalcoliamo lo slug  nel caso il titolo cambi
-        $data['slug'] = Str::slug($data['title']);
+            // Pulizia Titolo e Creazione Slug
+            $title = strtolower($data['title']);
+            // Ricalcoliamo lo slug  nel caso il titolo cambi
+            $data['slug'] = Str::slug($title);
 
-        $apartment->update($data);
+            // Query
+            $apartment->update($data);
 
-        $response = [
-            'success' => true,
-            'message' => 'Apartment updated successfully.',
-            'apartment_id' => $apartment->id
-        ];
+            // Response
+            $response = [
+                'success' => true,
+                'message' => 'Appartamento aggiornato con successo',
+                'apartment_id' => $apartment->id
+            ];
+        } catch (Exception $e) {
+            // Response
+            $response = [
+                'success' => false,
+                'message' => "Errore nell'aggiornamento dell'appartamento",
+            ];
+        }
 
         return response()->json($response);
-
-        // $apartment = Apartment::find($id)->with('services');
-
-        // if (!$apartment) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Appartamento non trovato'
-        //     ]);
-        // }
-
-        // $apartment->update($request->all());
-        // return response()->json(["data" => [
-        //     "success" => true,
-        //     'message' => 'Appartamento aggiornato con successo',
-        //     'apartment' => $apartment
-        // ]]);
     }
 
     /**
@@ -376,12 +423,22 @@ class ApartmentController extends Controller
      */
     public function destroy($id)
     {
-        Apartment::where('id', $id)->delete();
+        try {
+            // Query
+            Apartment::where('id', $id)->delete();
 
-        $response = [
-            'success' => true,
-            'message' => 'Appartamento eliminato con successo'
-        ];
+            // Response
+            $response = [
+                'success' => true,
+                'message' => 'Appartamento eliminato con successo'
+            ];
+        } catch (Exception $e) {
+            // Response
+            $response = [
+                'success' => false,
+                'message' => 'Errore eliminazione appartamento'
+            ];
+        }
 
         return response()->json($response);
     }

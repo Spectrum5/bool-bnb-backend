@@ -17,9 +17,10 @@ class ServiceController extends Controller
      */
     public function index(Request $request)
     {
-
+        // Query
         $services = Service::all();
 
+        // Response
         if ($services) {
             $response = [
                 'success' => true,

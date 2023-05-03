@@ -30,6 +30,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::get('/apartments/indexUser', [ApartmentController::class, 'indexUser']);
 Route::get('/apartments/indexFilter', [ApartmentController::class, 'indexFilter']);
+Route::get('/apartments/indexSponsored', [ApartmentController::class, 'indexSponsored']);
 
 Route::resource('messages', MessageController::class);
 Route::resource('apartments', ApartmentController::class);
