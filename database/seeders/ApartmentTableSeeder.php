@@ -37,9 +37,9 @@ class ApartmentTableSeeder extends Seeder
             $newApartment->lat = $singleApartment['latitude'];
             $newApartment->lng = $singleApartment['longitude'];
             $newApartment->address = $singleApartment['address'];
-            $newApartment->price = $faker->numberBetween(80, 1500);
+            $newApartment->price = $faker->numberBetween(60, 1500);
 
-            if ($newApartment->price >= 80 && $newApartment->price <= 200) {
+            if ($newApartment->price >= 60 && $newApartment->price <= 200) {
                 $newApartment->rooms_number = 1;
                 $newApartment->bathrooms_number = 1;
                 $newApartment->beds_number = random_int(1,2);
@@ -82,7 +82,7 @@ class ApartmentTableSeeder extends Seeder
 
             $newApartment->description = $singleApartment['description'];
             $newApartment->size = $faker->numberBetween(50, 500);
-            
+
             if (rand(1,100) > 90) {
                 $newApartment->visibility = 0;
             }
