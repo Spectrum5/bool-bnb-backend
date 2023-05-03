@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SponsorController;
+use App\Http\Controllers\Api\ViewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,4 +41,7 @@ Route::resource('services', ServiceController::class);
 // Rotta per la sponsorizzazione
 Route::resource('sponsors', SponsorController::class);
 Route::post('/sponsors/handlePayment', [SponsorController::class, 'handlePayment']);
+
+Route::post('/views', [ViewController::class, 'store']);
+Route::get('/views/apartmentViews/{id}', [ViewController::class, 'apartmentViews']);
 // Route::post('/sponsor', [SponsorController::class, 'store'])->name('sponsors.store');

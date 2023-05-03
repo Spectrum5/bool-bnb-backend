@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 
-use Exception;
 
 // Requests
 use Illuminate\Http\Request;
@@ -12,6 +11,7 @@ use App\Http\Requests\Apartment\StoreApartmentRequest;
 use App\Http\Requests\Apartment\UpdateApartmentRequest;
 
 // Helpers
+use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +35,11 @@ class ApartmentController extends Controller
         $apartmentsPerPage = 15;
 
         // Query
-        $apartments = Apartment::where('visibility', 1)->with('images')->paginate($apartmentsPerPage);
+        // $apartments = Apartment::where('visibility', 1)->with('images')->paginate($apartmentsPerPage);
+        $apartments = Apartment::where('visibility', 1)
+            ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
+            ->select('apartments.*', 'views.views_count')
+            ->with('images')->paginate($apartmentsPerPage);
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
@@ -176,9 +180,21 @@ class ApartmentController extends Controller
 
         // $apartments = $query->with('images', 'sponsors')->select('apartments.*')->paginate($apartmentsPerPage);
 
-        $apartments = $query->with(['sponsors' => function ($query) {
-            $query->where('exp_date', '>', now())->first();
-        }, 'images'])->select('apartments.*')->paginate($apartmentsPerPage);
+        // $apartments = Apartment::where('visibility', 1)
+        //     ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
+        //     ->select('apartments.*', 'views.views_count')
+        //     ->with('images')->paginate($apartmentsPerPage);
+
+        $apartments = $query
+            ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
+            ->select('apartments.*', 'views.views_count')
+            ->with(['sponsors' => function ($query) {
+                $query->where('exp_date', '>', now())->first();
+            }, 'images'])->select('apartments.*')->paginate($apartmentsPerPage);
+
+        // $apartments = $query->with(['sponsors' => function ($query) {
+        //     $query->where('exp_date', '>', now())->first();
+        // }, 'images'])->select('apartments.*')->paginate($apartmentsPerPage);
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
@@ -213,7 +229,12 @@ class ApartmentController extends Controller
             ->all();
 
         // Query
-        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->with('images', 'sponsors')->paginate($apartmentsPerPage);
+        // $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->with('images', 'sponsors')->paginate($apartmentsPerPage);
+
+        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)
+            ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
+            ->select('apartments.*', 'views.views_count')
+            ->with('images', 'sponsors')->paginate($apartmentsPerPage);
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
