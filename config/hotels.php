@@ -648,4 +648,164 @@ return [
         "longitude" => "-73.972069",
         "description" => "Questo appartamento di lusso nel cuore di Manhattan offre una vista mozzafiato sulle luci della città e una posizione ideale per esplorare le principali attrazioni. Con una spaziosa area living, camere da letto confortevoli e arredi eleganti, questo appartamento è l'ideale per una vacanza indimenticabile a New York.",
     ],
+
+    [
+        "nome" => "Villa del Mare Blu",
+        "address" => "Via della Spiaggia, 25, 90015 Cefalù (Palermo), Italia",
+        "latitude" => "38.032725",
+        "longitude" => "14.026856",
+        "description" => "Una villa sulla spiaggia a Cefalù, in Sicilia. Arredata con gusto e dotata di ogni comfort moderno, offre un panorama mozzafiato sul mare e sulla Rocca di Cefalù.",
+    ],
+
+    [
+        "nome" => "Suite Duomo II",
+        "address" => "Via del Corso, 3, 50122 Firenze, Italia",
+        "latitude" => "43.773923",
+        "longitude" => "11.255358",
+        "description" => "Una suite di lusso situata in una storica palazzina nel cuore di Firenze. La suite offre una vista panoramica sulla Cattedrale di Santa Maria del Fiore e sul campanile di Giotto. ",
+    ],
+
+
+    [
+        "nome" => "Casa Margherita",
+        "address" => "Strada Provinciale 102, 53012 Chiusdino (Siena), Italia",
+        "latitude" => "43.133346",
+        "longitude" => "11.154947",
+        "description" => "Una casa vacanze immersa nel verde delle colline toscane, a pochi chilometri da Siena. La casa offre una vista panoramica sulla campagna circostante e dispone di un grande giardino privato con piscina.",
+    ],
+
+
+    [
+        "nome" => "The Loft",
+        "address" => "Wilhelmstraße, 10117 Berlino, Germania",
+        "latitude" => "52.514401",
+        "longitude" => "13.379697",
+        "description" => "Un appartamento moderno situato nel cuore di Berlino, vicino alla Porta di Brandeburgo e alla Potsdamer Platz. La zona circostante è ricca di bar, ristoranti e negozi.",
+    ],
+
+
+    [
+        "nome" => "Casa della Luna",
+        "address" => "Calle Almazara, 11310 Sotogrande (Cadice), Spagna",
+        "latitude" => "36.285971",
+        "longitude" => "-5.293174",
+        "description" => "Una villa di lusso situata nella zona residenziale di Sotogrande, sulla Costa del Sol in Spagna. La villa dispone di una grande piscina privata e di un ampio giardino, ideale per rilassarsi e godersi il sole spagnolo.",
+    ],
+
+
+    [
+        "nome" => "Lisbona Suite",
+        "address" => "Rua de São Mamede, 1100-536 Lisbona, Portogallo",
+        "latitude" => "38.714041",
+        "longitude" => "-9.129102",
+        "description" => "Una suite di lusso situata nel cuore di Lisbona, a pochi passi dal Castello di San Giorgio e dalla Cattedrale di Lisbona. La suite offre una vista panoramica sulla città e dispone di tutti i comfort moderni.",
+    ],
+
+
+    [
+        "nome" => "Beverly Hills Mansion",
+        "address" => "North Beverly Drive, Beverly Hills, CA 90210, Stati Uniti",
+        "latitude" => "34.082390",
+        "longitude" => "-118.406078",
+        "description" => "Una villa di lusso situata nel cuore di Beverly Hills, a pochi minuti dalle boutique di Rodeo Drive e dalle celebrità di Hollywood. La villa dispone di una grande piscina, un campo da tennis e di un ampio giardino privato.",
+    ],
+
+
+    [
+        "nome" => "Villa delle Rose",
+        "address" => "Via delle Rose, 50020 Greve in Chianti FI, Italia",
+        "latitude" => "43.583748",
+        "longitude" => "11.305134",
+        "description" => "Questa lussuosa villa si trova nel cuore della Toscana, circondata da vigne e uliveti. Dotata di una piscina privata e di un ampio giardino, offre un'esperienza indimenticabile di pace e relax.",
+    ],
+
+
+    [
+        "nome" => "Sunset Retreat",
+        "address" => "46 Hui Dr, Lahaina, HI 96761, Stati Uniti",
+        "latitude" => "20.999437",
+        "longitude" => "-156.673321",
+        "description" => "Situato sulla costa nord-ovest dell'isola di Maui, questa suite offre una vista mozzafiato sull'oceano e sulla spiaggia di Napili Bay. Dotata di una terrazza privata e accesso diretto alla spiaggia, è la meta perfetta per una vacanza tropicale.",
+    ],
+
+
+    [
+        "nome" => "Loft du Marais",
+        "address" => "9 Rue de la Verrerie, 75004 Paris, Francia",
+        "latitude" => " 48.857727",
+        "longitude" => "2.354044",
+        "description" => "Questo elegante loft si trova nel quartiere del Marais a Parigi, famoso per i suoi caffè alla moda, i negozi vintage e l'architettura storica. Con i suoi soffitti alti e le grandi finestre, offre una vista panoramica sulla città e un'atmosfera unica.",
+    ],
+
+
+    [
+        "nome" => "Ocean View Suite",
+        "address" => "Via del Mare, 97010 Marina di Ragusa RG, Italia",
+        "latitude" => "36.774123",
+        "longitude" => "14.535154",
+        "description" => "Situata sulla costa sud della Sicilia, questa suite offre una vista spettacolare sul mare cristallino e la spiaggia di sabbia dorata. Dotata di un ampio balcone e di tutti i comfort moderni, è l'ideale per una vacanza rilassante e lontana dallo stress quotidiano.",
+    ],
+
+
+    [
+        "nome" => "Alpine Chalet",
+        "address" => "Route de la Forêt, 3963 Crans-Montana, Svizzera",
+        "latitude" => "46.295068",
+        "longitude" => "7.481822",
+        "description" => "Questo rustico chalet di montagna si trova nelle Alpi Svizzere, circondato da verdi pascoli e alti picchi rocciosi. Dotato di camino a legna, sauna e jacuzzi, offre una perfetta combinazione di comfort e natura.",
+    ],
+
+
+    [
+        "nome" => "Redwood Retreat",
+        "address" => "135 Cascade Dr, Mill Valley, CA 94941, Stati Uniti",
+        "latitude" => "37.897536",
+        "longitude" => "-122.542087",
+        "description" => " Situato nella tranquilla cittadina di Mill Valley, nella Baia di San Francisco, questa villa è immersa nella natura della California del Nord. Circondata da alberi di sequoia giganti, offre una vista panoramica sulla valle e un'atmosfera di pace e tranquillità.",
+    ],
+
+
+    [
+        "nome" => "The Blue Horizon Suite",
+        "address" => "Rua das Janelas Verdes, 1200-692 Lisbona, Portogallo",
+        "latitude" => "38.7055154",
+        "longitude" => "-9.1602912",
+        "description" => "Questa elegante suite si trova in un edificio storico di Lisbona, con una vista mozzafiato sul fiume Tago. Gli interni sono stati recentemente ristrutturati con un design moderno e accattivante. La suite offre un'esperienza di soggiorno confortevole e rilassante nel cuore di Lisbona.",
+    ],
+
+
+    [
+        "nome" => "Villa Paradiso",
+        "address" => "Via Luigi Pirandello, 98039 Taormina ME, Italia",
+        "latitude" => "37.8545671",
+        "longitude" => "15.2899377",
+        "description" => "Situata nella splendida città di Taormina, questa villa offre una vista panoramica sul Mar Mediterraneo e sulle montagne circostanti. Arredata con un design tradizionale, la villa è dotata di un ampio giardino con piscina privata e una terrazza ideale per cenare all'aperto.",
+    ],
+
+
+    [
+        "nome" => "Barcelona Beach House",
+        "address" => "Carrer del Paradís, 08003 Barcellona, Spagna",
+        "latitude" => "41.3832855",
+        "longitude" => "2.1770766",
+        "description" => "Situata a pochi passi dalla spiaggia, questa villa offre una vista mozzafiato sul Mar Mediterraneo e sulla città di Barcellona. Arredata con uno stile moderno e accogliente, la villa dispone di una grande piscina privata e di una terrazza panoramica per godersi la vista sul mare.",
+    ],
+
+
+    [
+        "nome" => "The Hollywood Hills Hideaway",
+        "address" => "1600 Benedict Canyon Dr, Beverly Hills, CA 90210, Stati Uniti",
+        "latitude" => "34.1000483",
+        "longitude" => "-118.4345157",
+        "description" => "Questo appartamento si trova nel cuore di Beverly Hills, circondato da lussureggianti giardini tropicali. Arredato con uno stile moderno e lussuoso, l'appartamento offre una vista panoramica sulle colline di Hollywood e sulla città di Los Angeles.",
+    ],
+
+
+    [
+        "nome" => "The Bohemian Loft",
+        "address" => "Korunní 65, Vinohrady, 120 00 Praha, Repubblica Ceca",
+        "latitude" => "50.080402",
+        "longitude" => "14.447077",
+        "description" => "Situato nel quartiere di Vinohrady a Praga, questo loft artistico è il rifugio perfetto per gli amanti dell'arte e della cultura. L'appartamento presenta un design bohémien, con colori vivaci e arredi unici, e dispone di una vasta collezione di libri e opere d'arte.",
+    ],
 ];
