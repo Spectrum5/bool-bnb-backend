@@ -29,14 +29,21 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     // Aggiungere rotte store, edit e destroy solo per utenti autenticati
 });
 
+// Rotte Protette
+// Route::middleware(['auth:sanctum'])->resource('apartments', ApartmentController::class)->except(['index', 'show']);
+
+// Rotte Pubbliche
+// Route::get('/apartments', [ApartmentController::class, 'index']);
+
 Route::get('/apartments/indexUser', [ApartmentController::class, 'indexUser']);
 Route::get('/apartments/indexFilter', [ApartmentController::class, 'indexFilter']);
 Route::get('/apartments/indexSponsored', [ApartmentController::class, 'indexSponsored']);
+Route::get('/apartments/indexStats', [ApartmentController::class, 'indexStats']);
 
 Route::resource('messages', MessageController::class);
-Route::resource('apartments', ApartmentController::class);
 Route::resource('images', ImageController::class)->withoutMiddleware("throttle:api");
 Route::resource('services', ServiceController::class);
+Route::resource('apartments', ApartmentController::class);
 
 // Rotta per la sponsorizzazione
 Route::resource('sponsors', SponsorController::class);

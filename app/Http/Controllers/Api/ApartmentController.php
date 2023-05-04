@@ -62,7 +62,71 @@ class ApartmentController extends Controller
     public function indexUser()
     {
         // Query
-        $apartments = Apartment::where('user_id', Auth::user()->id)->get();
+        $apartments = Apartment::where('user_id', Auth::user()->id)
+            ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
+            ->select('apartments.*', 'views.views_count')->get();
+
+        // $year = 2023; // anno specifico
+
+        // ->select('apartments.*', 'views.views_count')
+        // $apartments = Apartment::where('user_id', Auth::user()->id)->get();
+        // $apartments = DB::table('apartments')->where('user_id', Auth::user()->id)
+        //     ->leftJoin('views', 'apartments.id', '=', 'views.apartment_id')
+        //     ->select(
+        //         'apartments.*',
+        //         // 'views.apartment_id',
+        //         DB::raw('YEAR(views.created_at) as year'),
+        //         DB::raw('MONTH(views.created_at) as month'),
+        //         DB::raw('COUNT(*) as view_count')
+        //     )
+        //     ->whereYear('views.created_at', $year)
+        //     ->groupBy('apartments.id', 'year', 'month')
+        //     ->get();
+
+        // $apartments = DB::table('apartments')
+        //     ->where('user_id', Auth::user()->id)
+        //     ->leftJoin('views', 'apartments.id', '=', 'views.apartment_id')
+        //     ->selectRaw('
+        //         apartments.id, 
+        //         apartments.title, 
+        //         apartments.description, 
+        //         apartments.price, 
+        //         YEAR(views.created_at) as year,
+        //         MONTH(views.created_at) as month,
+        //         COUNT(*) as view_count
+        //     ')
+        //     ->whereYear('views.created_at', $year)
+        //     ->groupBy('apartments.id', 'year', 'month')
+        //     ->orderBy('apartments.id', 'ASC')
+        //     ->orderBy('year', 'ASC')
+        //     ->orderBy('month', 'ASC')
+        //     ->get()
+        //     ->groupBy('id');
+
+        // $apartments = DB::table('apartments')
+        //     ->where('user_id', Auth::user()->id)
+        //     ->leftJoin('views', 'apartments.id', '=', 'views.apartment_id')
+        //     ->selectRaw('
+        //         apartments.id, 
+        //         apartments.title, 
+        //         YEAR(views.created_at) as year,
+        //         MONTH(views.created_at) as month,
+        //         COUNT(*) as view_count
+        //     ')
+        //     ->whereYear('views.created_at', $year)
+        //     ->groupBy('apartments.id', 'year', 'month')
+        //     ->orderBy('apartments.id', 'ASC')
+        //     ->orderBy('year', 'ASC')
+        //     ->orderBy('month', 'ASC')
+        //     ->get()
+        //     ->groupBy('id');
+
+        // $apartments = Apartment::where('visibility', 1)
+        //     ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
+        //     ->select('apartments.*', 'views.views_count')
+        //     ->with('images')->paginate($apartmentsPerPage);
+
+
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
@@ -188,9 +252,16 @@ class ApartmentController extends Controller
         $apartments = $query
             ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
             ->select('apartments.*', 'views.views_count')
-            ->with(['sponsors' => function ($query) {
-                $query->where('exp_date', '>', now())->first();
-            }, 'images'])->select('apartments.*')->paginate($apartmentsPerPage);
+            ->with('images')
+            // ->with(['sponsors' => function ($query) {
+            //     $query->where('exp_date', '>', now())->first();
+            // }, 'images'])->select('apartments.*')
+            ->paginate($apartmentsPerPage);
+
+        // $apartments = Apartment::where('visibility', 1)
+        //     ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
+        //     ->select('apartments.*', 'views.views_count')
+        //     ->with('images')->paginate($apartmentsPerPage);
 
         // $apartments = $query->with(['sponsors' => function ($query) {
         //     $query->where('exp_date', '>', now())->first();
@@ -252,6 +323,65 @@ class ApartmentController extends Controller
 
         return response()->json($response);
     }
+
+    // public function indexStats()
+    // {
+    //     $year = 2023;
+
+    //     $result = DB::table('apartments')
+    //         ->where('user_id', Auth::user()->id)
+    //         ->leftJoin('views', 'apartments.id', '=', 'views.apartment_id')
+    //         ->selectRaw('
+    //                 apartments.id, 
+    //                 apartments.title, 
+    //                 YEAR(views.created_at) as year,
+    //                 MONTH(views.created_at) as month,
+    //                 COUNT(*) as view_count
+    //             ')
+    //         ->whereYear('views.created_at', $year)
+    //         ->groupBy('apartments.id', 'year', 'month')
+    //         ->orderBy('apartments.id', 'ASC')
+    //         ->orderBy('year', 'ASC')
+    //         ->orderBy('month', 'ASC')
+    //         ->get()
+    //         ->groupBy('id');
+
+    //     $apartments = [];
+    //     foreach ($result as $row) {
+    //         $apartmentId = $row->id;
+
+    //         if (!isset($apartments[$apartmentId])) {
+    //             $apartments[$apartmentId] = [
+    //                 'id' => $row->id,
+    //                 'title' => $row->title,
+    //                 'views' => []
+    //             ];
+    //         }
+
+    //         $apartments[$apartmentId]['views'][] = [
+    //             'year' => $row->year,
+    //             'month' => $row->month,
+    //             'view_count' => $row->view_count
+    //         ];
+    //     }
+
+    //     $apartments = array_values($apartments);
+
+    //     // Response
+    //     if (isset($apartments) && count($apartments) > 0) {
+    //         $response = [
+    //             'success' => true,
+    //             'message' => 'Appartamenti con statistiche ottenuti con successo',
+    //             'apartments' => $apartments
+    //         ];
+    //     } else {
+    //         $response = [
+    //             'success' => false,
+    //             'message' => "Errore ottenimento appartamenti con statistiche"
+    //         ];
+    //     }
+    //     return response()->json($response);
+    // }
 
     /**
      * Recupera le risorse per il form di creazione di una nuova risorsa
