@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 
-
 // Requests
 use Illuminate\Http\Request;
 use App\Http\Requests\Apartment\StoreApartmentRequest;
@@ -29,13 +28,14 @@ class ApartmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    // Usato nella pagina Home
     public function index()
     {
         // Settings
         $apartmentsPerPage = 15;
 
         // Query
-        // $apartments = Apartment::where('visibility', 1)->with('images')->paginate($apartmentsPerPage);
+        // Restituisce gli Apartments con visibility = 1 e per ognuno aggiunge il numero di visualizzazioni
         $apartments = Apartment::where('visibility', 1)
             ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
             ->select('apartments.*', 'views.views_count')
@@ -43,12 +43,20 @@ class ApartmentController extends Controller
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
+            // Caso Appartamenti trovati
             $response = [
                 'success' => true,
                 'message' => 'Appartamenti ottenuti con successo',
                 'apartments' => $apartments
             ];
+        } else if (isset($apartments) && count($apartments) <= 0) {
+            // Caso Appartamenti non trovati
+            $response = [
+                'success' => false,
+                'message' => 'Appartamenti non trovati'
+            ];
         } else {
+            // Caso Errore
             $response = [
                 'success' => false,
                 'message' => 'Errore ottenimento Appartamenti'
@@ -58,75 +66,15 @@ class ApartmentController extends Controller
         return response()->json($response);
     }
 
-    // Mostra una lista delle risorse relative solo all'id passato
+    // Mostra una lista delle risorse relative solo all'id dell'utente autenticato
+    // Usato nella pagina Dashbaord-Apartment Index
     public function indexUser()
     {
         // Query
+        // Ottiene tutti gli Apartments con user_id uguale allo user autenticato, con le visualizzazioni totali
         $apartments = Apartment::where('user_id', Auth::user()->id)
             ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
             ->select('apartments.*', 'views.views_count')->get();
-
-        // $year = 2023; // anno specifico
-
-        // ->select('apartments.*', 'views.views_count')
-        // $apartments = Apartment::where('user_id', Auth::user()->id)->get();
-        // $apartments = DB::table('apartments')->where('user_id', Auth::user()->id)
-        //     ->leftJoin('views', 'apartments.id', '=', 'views.apartment_id')
-        //     ->select(
-        //         'apartments.*',
-        //         // 'views.apartment_id',
-        //         DB::raw('YEAR(views.created_at) as year'),
-        //         DB::raw('MONTH(views.created_at) as month'),
-        //         DB::raw('COUNT(*) as view_count')
-        //     )
-        //     ->whereYear('views.created_at', $year)
-        //     ->groupBy('apartments.id', 'year', 'month')
-        //     ->get();
-
-        // $apartments = DB::table('apartments')
-        //     ->where('user_id', Auth::user()->id)
-        //     ->leftJoin('views', 'apartments.id', '=', 'views.apartment_id')
-        //     ->selectRaw('
-        //         apartments.id, 
-        //         apartments.title, 
-        //         apartments.description, 
-        //         apartments.price, 
-        //         YEAR(views.created_at) as year,
-        //         MONTH(views.created_at) as month,
-        //         COUNT(*) as view_count
-        //     ')
-        //     ->whereYear('views.created_at', $year)
-        //     ->groupBy('apartments.id', 'year', 'month')
-        //     ->orderBy('apartments.id', 'ASC')
-        //     ->orderBy('year', 'ASC')
-        //     ->orderBy('month', 'ASC')
-        //     ->get()
-        //     ->groupBy('id');
-
-        // $apartments = DB::table('apartments')
-        //     ->where('user_id', Auth::user()->id)
-        //     ->leftJoin('views', 'apartments.id', '=', 'views.apartment_id')
-        //     ->selectRaw('
-        //         apartments.id, 
-        //         apartments.title, 
-        //         YEAR(views.created_at) as year,
-        //         MONTH(views.created_at) as month,
-        //         COUNT(*) as view_count
-        //     ')
-        //     ->whereYear('views.created_at', $year)
-        //     ->groupBy('apartments.id', 'year', 'month')
-        //     ->orderBy('apartments.id', 'ASC')
-        //     ->orderBy('year', 'ASC')
-        //     ->orderBy('month', 'ASC')
-        //     ->get()
-        //     ->groupBy('id');
-
-        // $apartments = Apartment::where('visibility', 1)
-        //     ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
-        //     ->select('apartments.*', 'views.views_count')
-        //     ->with('images')->paginate($apartmentsPerPage);
-
-
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
@@ -135,10 +83,15 @@ class ApartmentController extends Controller
                 'message' => 'Appartamenti personali ottenuti con successo',
                 'apartments' => $apartments
             ];
+        } else if (isset($apartments) && count($apartments) <= 0) {
+            $response = [
+                'success' => false,
+                'message' => 'Appartamenti personali non trovati'
+            ];
         } else {
             $response = [
                 'success' => false,
-                'message' => "Errore ottenimento appartamenti personali"
+                'message' => 'Errore ottenimento appartamenti personali'
             ];
         }
 
@@ -146,6 +99,7 @@ class ApartmentController extends Controller
     }
 
     // Mostra una lista delle risorse filtrate secondo le query passate
+    // Usato nella pagina Search
     public function indexFilter(Request $request)
     {
         // Settings
@@ -155,8 +109,9 @@ class ApartmentController extends Controller
         $query = Apartment::query();
         $apartments = new \Illuminate\Database\Eloquent\Collection;
 
-        // Prende tutti gli apartments che hanno anche un record in apartment_sponsor
+        // Prende tutti gli apartments con visibility = 1, che hanno anche un record in apartment_sponsor con data di scadenza maggiore di oggi
         $query
+            ->where('visibility', 1)
             ->leftJoin('apartment_sponsor', 'apartments.id', '=', 'apartment_sponsor.apartment_id')
             ->orderByRaw('CASE WHEN apartment_sponsor.exp_date > CURDATE() THEN 0 ELSE 1 END ASC')
             ->orderBy('apartment_sponsor.exp_date', 'ASC');
@@ -242,30 +197,12 @@ class ApartmentController extends Controller
             $query->whereIn('apartments.id', $apartmentServicesIds);
         }
 
-        // $apartments = $query->with('images', 'sponsors')->select('apartments.*')->paginate($apartmentsPerPage);
-
-        // $apartments = Apartment::where('visibility', 1)
-        //     ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
-        //     ->select('apartments.*', 'views.views_count')
-        //     ->with('images')->paginate($apartmentsPerPage);
-
+        // Applica la query costruita precedentemente e agiunge il numero di views, le immagini, gli sponsors
         $apartments = $query
             ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
             ->select('apartments.*', 'views.views_count')
-            ->with('images')
-            // ->with(['sponsors' => function ($query) {
-            //     $query->where('exp_date', '>', now())->first();
-            // }, 'images'])->select('apartments.*')
+            ->with('images', 'sponsors')
             ->paginate($apartmentsPerPage);
-
-        // $apartments = Apartment::where('visibility', 1)
-        //     ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
-        //     ->select('apartments.*', 'views.views_count')
-        //     ->with('images')->paginate($apartmentsPerPage);
-
-        // $apartments = $query->with(['sponsors' => function ($query) {
-        //     $query->where('exp_date', '>', now())->first();
-        // }, 'images'])->select('apartments.*')->paginate($apartmentsPerPage);
 
         // Response
         if (isset($apartments) && count($apartments) > 0) {
@@ -275,6 +212,11 @@ class ApartmentController extends Controller
                 'apartments' => $apartments,
                 'Distanze ordinate' => $distances,
                 'Ids ordinati' => $apartmentRadiusIds,
+            ];
+        } else if (isset($apartments) && count($apartments) <= 0) {
+            $response = [
+                'success' => false,
+                'message' => 'Appartamenti filtrati non trovati'
             ];
         } else {
             $response = [
@@ -287,6 +229,7 @@ class ApartmentController extends Controller
     }
 
     // Mostra una lista degli appartamenti con un piano di sponsor attivo
+    // Usato nella pagina Home-Sponsorizzati
     public function indexSponsored(Request $request)
     {
         // Settings
@@ -300,9 +243,9 @@ class ApartmentController extends Controller
             ->all();
 
         // Query
-        // $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)->with('images', 'sponsors')->paginate($apartmentsPerPage);
-
+        // Ottiene tutti gli Apartments sponsorizzati, con visibilita' 1, con le immagini, sponsors, views
         $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)
+            ->where('visibility', 1)
             ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
             ->select('apartments.*', 'views.views_count')
             ->with('images', 'sponsors')->paginate($apartmentsPerPage);
@@ -314,10 +257,15 @@ class ApartmentController extends Controller
                 'message' => 'Appartamenti sponsorizzati ottenuti con successo',
                 'apartments' => $apartments,
             ];
+        } else if (isset($apartments) && count($apartments) <= 0) {
+            $response = [
+                'success' => false,
+                'message' => 'Appartamenti sponsorizzati non trovati'
+            ];
         } else {
             $response = [
                 'success' => false,
-                'message' => "Nessun appartamento trovato"
+                'message' => 'Errore ottenimento appartamenti sponsorizzati'
             ];
         }
 

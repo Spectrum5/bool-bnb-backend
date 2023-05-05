@@ -51,4 +51,5 @@ Route::post('/sponsors/handlePayment', [SponsorController::class, 'handlePayment
 
 Route::post('/views', [ViewController::class, 'store']);
 Route::get('/views/apartmentViews/{id}', [ViewController::class, 'apartmentViews']);
+Route::get('/views/apartmentViewsMonths', [ViewController::class, 'apartmentViewsMonths']);
 // Route::post('/sponsor', [SponsorController::class, 'store'])->name('sponsors.store');
