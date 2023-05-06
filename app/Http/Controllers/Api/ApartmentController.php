@@ -244,10 +244,10 @@ class ApartmentController extends Controller
             ->groupBy('apartment_id')
             ->pluck('apartment_id')
             ->all();
-
-        // Query
-        // Ottiene tutti gli Apartments sponsorizzati, con visibilita' 1, con le immagini, sponsors, views
-        $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)
+            
+            // Query
+            // Ottiene tutti gli Apartments sponsorizzati, con visibilita' 1, con le immagini, sponsors, views
+            $apartments = Apartment::whereIn('id', $apartmentSponsoredIds)
             ->where('visibility', 1)
             ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
             ->select('apartments.*', 'views.views_count')
@@ -426,34 +426,46 @@ class ApartmentController extends Controller
      * @return \Illuminate\Http\Response
      */
     // public function update(UpdateApartmentRequest $request, $id)
-    public function update(UpdateApartmentRequest $request, Apartment $apartment)
+    // public function update(UpdateApartmentRequest $request, Apartment $apartment)
+    public function update(UpdateApartmentRequest $request, $id)
     {
+        $apartment = Apartment::find($id);
 
-        try {
-            // Validazione
-            $data = $request->validated();
-
-            // Pulizia Titolo e Creazione Slug
-            $title = strtolower($data['title']);
-            // Ricalcoliamo lo slug  nel caso il titolo cambi
-            $data['slug'] = Str::slug($title);
-
-            // Query
-            $apartment->update($data);
-
-            // Response
-            $response = [
-                'success' => true,
-                'message' => 'Appartamento aggiornato con successo',
-                'apartment_id' => $apartment->id
-            ];
-        } catch (Exception $e) {
-            // Response
+        if ($apartment->user_id == Auth::user()->id) {
+            try {
+                // Validazione
+                $data = $request->validated();
+    
+                // Pulizia Titolo e Creazione Slug
+                $title = strtolower($data['title']);
+                // Ricalcoliamo lo slug  nel caso il titolo cambi
+                $data['slug'] = Str::slug($title);
+    
+    
+                // Query
+                $apartment->update($data);
+    
+                // Response
+                $response = [
+                    'success' => true,
+                    'message' => 'Appartamento aggiornato con successo',
+                    'apartment_id' => $apartment->id
+                ];
+            } catch (Exception $e) {
+                // Response
+                $response = [
+                    'success' => false,
+                    'message' => "Errore nell'aggiornamento dell'appartamento",
+                ];
+            }
+        }
+        else {
             $response = [
                 'success' => false,
                 'message' => "Errore nell'aggiornamento dell'appartamento",
             ];
         }
+
 
         return response()->json($response);
     }

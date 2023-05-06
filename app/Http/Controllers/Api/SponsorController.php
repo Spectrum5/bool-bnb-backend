@@ -50,11 +50,19 @@ class SponsorController extends Controller
         if(isset($sponsor_id) && $sponsor_id >= 1 && $sponsor_id <= count(Sponsor::all()) && isset($apartment_id)) {
             $apartment = Apartment::find($apartment_id);
     
+            // 24, 72, 144 h
             $duration = Sponsor::find($request->input('sponsor_id'))->duration;
+
+            // "2023-05-12T11:49:13.825217Z" data finale non formattata
             $date = Carbon::now()->addHours($duration);
+
+            // 1, 3, 6 giorni
             $days = ceil($date->diffInHours(Carbon::now()) / 24);
-            $creation = '2023-05-02';
-            $ending = \Carbon\Carbon::parse($creation)->addDays($days);
+
+            // $creation = '2023-05-02';
+            $creation = Carbon::now()->format('Y/m/d H:i');
+
+            $ending = \Carbon\Carbon::parse($creation)->addDays($days)->format('Y/m/d H:i');
     
             $apartment->sponsors()->attach($request->input('sponsor_id'), ['exp_date' => $ending]);
 
@@ -65,8 +73,9 @@ class SponsorController extends Controller
                 'apartment_id' => $apartment_id,
                 'sponsor_id' => $apartment_id,
                 'creation_date' => $creation,
-                'ending_date' => $ending->format('Y/m/d H:i'),
-                'duration' => $duration
+                'ending_date' => $ending,
+                'duration_hours' => $duration,
+                'duration_days' => $days,
             ];
         }
         else {
