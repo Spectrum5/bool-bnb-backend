@@ -40,6 +40,12 @@ class User extends Authenticatable
         return $this->hasMany(Apartment::class);
     }
 
+    // Relazione con sponsors
+    public function sponsors()
+    {
+        return $this->hasMany(Sponsors::class);
+    }
+
     /**
      * The attributes that should be cast.
      *

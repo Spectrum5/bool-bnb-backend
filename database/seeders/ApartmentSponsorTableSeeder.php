@@ -27,10 +27,11 @@ class ApartmentSponsorTableSeeder extends Seeder
         foreach (Apartment::all() as $apartment) {
 
             
-            if ((rand(0, 2) > 1)) {
+            if ((rand(0, 100) > 75)) {
                 
                 $exp_date = $faker->dateTimeBetween('now', '+6 months');
-                $sponsors = Sponsor::all()->take(rand(1, 3))->pluck('id');
+                // $sponsors = Sponsor::all()->take(rand(1, 3))->pluck('id');
+                $sponsors = Sponsor::inRandomOrder()->first()->id;
     
                 $apartment->sponsors()->attach($sponsors, ['exp_date'=> $exp_date]);
             }

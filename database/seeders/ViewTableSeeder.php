@@ -21,12 +21,13 @@ class ViewTableSeeder extends Seeder
      */
     public function run(Faker $faker)
     {
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 2000; $i++) {
 
         $newView = new View;
 
         $newView->apartment_id = Apartment::inRandomOrder()->first()->id;
         $newView->ip_address = $faker->ipv4();
+        $newView->created_at = $faker->dateTimeBetween('-1 year', 'now');
         
         $newView->save();
     }

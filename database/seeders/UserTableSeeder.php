@@ -25,10 +25,10 @@ class UserTableSeeder extends Seeder
 
         // Utente per le prove
         $testUser = new User;
-        $testUser->first_name = 'test f_name';
-        $testUser->last_name = 'test l_name';
+        $testUser->first_name = 'test';
+        $testUser->last_name = 'example';
         $testUser->email = 'test@example.com';
-        $testUser->password = Hash::make('password');
+        $testUser->password = Hash::make('passwordtest');
         $testUser->date_of_birth = '2000/01/01';
         $testUser->save();
 

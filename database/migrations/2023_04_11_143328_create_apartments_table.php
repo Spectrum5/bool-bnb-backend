@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('title', 255)->unique();
             $table->string('slug', 255)->unique();
             $table->smallInteger('price');
-            $table->string('image', 255);
             $table->boolean('visibility')->default('1');
             
             // Address
