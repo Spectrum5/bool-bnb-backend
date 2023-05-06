@@ -197,11 +197,14 @@ class ApartmentController extends Controller
             $query->whereIn('apartments.id', $apartmentServicesIds);
         }
 
-        // Applica la query costruita precedentemente e agiunge il numero di views, le immagini, gli sponsors
+        $now = \Carbon\Carbon::now();
+
         $apartments = $query
             ->leftJoin(DB::raw('(SELECT apartment_id, COUNT(*) as views_count FROM views GROUP BY apartment_id) as views'), 'apartments.id', '=', 'views.apartment_id')
             ->select('apartments.*', 'views.views_count')
-            ->with('images', 'sponsors')
+            ->with(['images', 'sponsors' => function ($query) use ($now) {
+                $query->where('apartment_sponsor.exp_date', '>', $now);
+            }])
             ->paginate($apartmentsPerPage);
 
         // Response
@@ -271,65 +274,6 @@ class ApartmentController extends Controller
 
         return response()->json($response);
     }
-
-    // public function indexStats()
-    // {
-    //     $year = 2023;
-
-    //     $result = DB::table('apartments')
-    //         ->where('user_id', Auth::user()->id)
-    //         ->leftJoin('views', 'apartments.id', '=', 'views.apartment_id')
-    //         ->selectRaw('
-    //                 apartments.id, 
-    //                 apartments.title, 
-    //                 YEAR(views.created_at) as year,
-    //                 MONTH(views.created_at) as month,
-    //                 COUNT(*) as view_count
-    //             ')
-    //         ->whereYear('views.created_at', $year)
-    //         ->groupBy('apartments.id', 'year', 'month')
-    //         ->orderBy('apartments.id', 'ASC')
-    //         ->orderBy('year', 'ASC')
-    //         ->orderBy('month', 'ASC')
-    //         ->get()
-    //         ->groupBy('id');
-
-    //     $apartments = [];
-    //     foreach ($result as $row) {
-    //         $apartmentId = $row->id;
-
-    //         if (!isset($apartments[$apartmentId])) {
-    //             $apartments[$apartmentId] = [
-    //                 'id' => $row->id,
-    //                 'title' => $row->title,
-    //                 'views' => []
-    //             ];
-    //         }
-
-    //         $apartments[$apartmentId]['views'][] = [
-    //             'year' => $row->year,
-    //             'month' => $row->month,
-    //             'view_count' => $row->view_count
-    //         ];
-    //     }
-
-    //     $apartments = array_values($apartments);
-
-    //     // Response
-    //     if (isset($apartments) && count($apartments) > 0) {
-    //         $response = [
-    //             'success' => true,
-    //             'message' => 'Appartamenti con statistiche ottenuti con successo',
-    //             'apartments' => $apartments
-    //         ];
-    //     } else {
-    //         $response = [
-    //             'success' => false,
-    //             'message' => "Errore ottenimento appartamenti con statistiche"
-    //         ];
-    //     }
-    //     return response()->json($response);
-    // }
 
     /**
      * Recupera le risorse per il form di creazione di una nuova risorsa
